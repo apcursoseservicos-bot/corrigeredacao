@@ -1,0 +1,3033 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CORRIGE REDAÇÃO IA — Da escrita à avaliação</title>
+  <!-- Dependência externa CDN: Tesseract.js v5 para OCR local no navegador (idioma: por) -->
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+  <style>
+    /* ==========================================================================
+       1. VARIÁVEIS E DESIGN SYSTEM (TEMA EDUCACIONAL INSTITUCIONAL)
+       ========================================================================== */
+    :root {
+      --primary: #1e3a8a;
+      --primary-hover: #1e40af;
+      --primary-light: #eff6ff;
+      --secondary: #0f766e;
+      --secondary-light: #f0fdfa;
+      --accent: #d97706;
+      --bg-body: #f1f5f9;
+      --bg-surface: #ffffff;
+      --bg-subtle: #f8fafc;
+      --text-main: #0f172a;
+      --text-muted: #475569;
+      --text-light: #94a3b8;
+      --border: #cbd5e1;
+      --border-light: #e2e8f0;
+      --success: #15803d;
+      --success-bg: #dcfce7;
+      --warning: #b45309;
+      --warning-bg: #fef3c7;
+      --danger: #b91c1c;
+      --danger-bg: #fee2e2;
+      --info: #0369a1;
+      --info-bg: #e0f2fe;
+      --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06);
+      --shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.08), 0 2px 4px -2px rgba(15, 23, 42, 0.06);
+      --shadow-lg: 0 10px 15px -3px rgba(15, 23, 42, 0.1);
+      --radius: 10px;
+      --radius-sm: 6px;
+      --sidebar-width: 270px;
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      --font-mono: 'Fira Code', 'JetBrains Mono', Consolas, monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--font-sans);
+      background-color: var(--bg-body);
+      color: var(--text-main);
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ==========================================================================
+       2. LAYOUT PRINCIPAL: SIDEBAR E ÁREA DE CONTEÚDO
+       ========================================================================== */
+    .app-shell { display: flex; min-height: 100vh; }
+
+    .sidebar {
+      width: var(--sidebar-width);
+      background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+      color: #f8fafc;
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0; left: 0; bottom: 0;
+      z-index: 40;
+      transition: transform 0.25s ease;
+    }
+
+    .brand { padding: 1.5rem 1.25rem; border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
+    .brand-badge {
+      display: inline-block;
+      background: #2563eb;
+      color: #fff;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      padding: 0.2rem 0.55rem;
+      border-radius: 4px;
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+    }
+    .brand h1 { font-size: 1.15rem; font-weight: 800; letter-spacing: -0.01em; color: #ffffff; }
+    .brand p { font-size: 0.75rem; color: #94a3b8; margin-top: 0.25rem; line-height: 1.35; }
+
+    .nav-menu {
+      padding: 1rem 0.75rem;
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+    .nav-section-title {
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #64748b;
+      padding: 0.65rem 0.75rem 0.25rem;
+      font-weight: 700;
+    }
+    .nav-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      width: 100%;
+      padding: 0.7rem 0.85rem;
+      background: transparent;
+      border: none;
+      border-radius: var(--radius-sm);
+      color: #cbd5e1;
+      font-size: 0.88rem;
+      font-weight: 500;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.15s ease;
+    }
+    .nav-btn:hover { background: rgba(255, 255, 255, 0.08); color: #ffffff; }
+    .nav-btn.active {
+      background: #2563eb;
+      color: #ffffff;
+      font-weight: 600;
+      box-shadow: 0 2px 6px rgba(37, 99, 235, 0.4);
+    }
+    .nav-step {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.12);
+      font-size: 0.72rem;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    .nav-btn.active .nav-step { background: #ffffff; color: #1e3a8a; }
+
+    .sidebar-footer {
+      padding: 1rem 1.25rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      font-size: 0.75rem;
+      color: #94a3b8;
+    }
+    .status-pill { display: flex; align-items: center; gap: 0.45rem; margin-bottom: 0.4rem; font-weight: 500; }
+    .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+    .dot.online { background: #22c55e; box-shadow: 0 0 6px #22c55e; }
+    .dot.offline { background: #ef4444; }
+    .dot.warn { background: #f59e0b; }
+
+    .main-wrapper {
+      flex: 1;
+      margin-left: var(--sidebar-width);
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .topbar {
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border-light);
+      padding: 0.9rem 1.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      position: sticky;
+      top: 0;
+      z-index: 30;
+    }
+    .topbar-left { display: flex; align-items: center; gap: 0.85rem; }
+    .menu-toggle {
+      display: none;
+      background: var(--bg-subtle);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 0.45rem 0.65rem;
+      cursor: pointer;
+      font-size: 1.1rem;
+    }
+    .topbar-title h2 { font-size: 1.05rem; font-weight: 700; color: var(--text-main); }
+    .topbar-title span { font-size: 0.78rem; color: var(--text-muted); }
+    .topbar-actions { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
+
+    .content-area { padding: 1.75rem; max-width: 1360px; width: 100%; margin: 0 auto; flex: 1; }
+
+    /* ==========================================================================
+       3. COMPONENTES REUTILIZÁVEIS
+       ========================================================================== */
+    .card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-sm);
+      padding: 1.35rem;
+      margin-bottom: 1.25rem;
+    }
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      padding-bottom: 0.85rem;
+      margin-bottom: 1.1rem;
+      border-bottom: 1px solid var(--border-light);
+      flex-wrap: wrap;
+    }
+    .card-title { font-size: 1rem; font-weight: 700; color: var(--primary); display: flex; align-items: center; gap: 0.5rem; }
+
+    .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.25rem; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.1rem; }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; }
+
+    .stat-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius);
+      padding: 1.1rem;
+      box-shadow: var(--shadow-sm);
+    }
+    .stat-label { font-size: 0.76rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; }
+    .stat-value { font-size: 1.65rem; font-weight: 800; color: var(--text-main); margin-top: 0.25rem; }
+    .stat-sub { font-size: 0.76rem; color: var(--text-muted); margin-top: 0.2rem; }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.45rem;
+      padding: 0.55rem 1rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.85rem;
+      font-weight: 600;
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      text-decoration: none;
+    }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-primary:hover:not(:disabled) { background: var(--primary-hover); }
+    .btn-secondary { background: var(--secondary); color: #fff; }
+    .btn-secondary:hover:not(:disabled) { background: #115e59; }
+    .btn-outline { background: #fff; border-color: var(--border); color: var(--text-main); }
+    .btn-outline:hover:not(:disabled) { background: var(--bg-subtle); border-color: #94a3b8; }
+    .btn-danger { background: var(--danger-bg); color: var(--danger); border-color: #fecaca; }
+    .btn-danger:hover:not(:disabled) { background: #fecaca; }
+    .btn-success { background: var(--success); color: #fff; }
+    .btn-success:hover:not(:disabled) { background: #166534; }
+    .btn-sm { padding: 0.38rem 0.72rem; font-size: 0.78rem; }
+
+    .form-group { margin-bottom: 0.9rem; }
+    .form-label { display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-main); margin-bottom: 0.35rem; }
+    .form-control {
+      width: 100%;
+      padding: 0.55rem 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-family: inherit;
+      font-size: 0.88rem;
+      color: var(--text-main);
+      background: #fff;
+      transition: border-color 0.15s;
+    }
+    .form-control:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.12); }
+    textarea.form-control { resize: vertical; line-height: 1.6; }
+
+    .alert { padding: 0.85rem 1rem; border-radius: var(--radius-sm); font-size: 0.84rem; border-left: 4px solid; margin-bottom: 1rem; }
+    .alert-info { background: var(--info-bg); border-color: var(--info); color: #0c4a6e; }
+    .alert-warn { background: var(--warning-bg); border-color: var(--warning); color: #78350f; }
+    .alert-danger { background: var(--danger-bg); border-color: var(--danger); color: #7f1d1d; }
+    .alert-success { background: var(--success-bg); border-color: var(--success); color: #14532d; }
+
+    .badge { display: inline-flex; align-items: center; padding: 0.2rem 0.55rem; border-radius: 999px; font-size: 0.72rem; font-weight: 700; }
+    .badge-blue { background: var(--primary-light); color: var(--primary); }
+    .badge-teal { background: var(--secondary-light); color: var(--secondary); }
+    .badge-amber { background: var(--warning-bg); color: var(--warning); }
+    .badge-red { background: var(--danger-bg); color: var(--danger); }
+    .badge-green { background: var(--success-bg); color: var(--success); }
+
+    /* ==========================================================================
+       4. ESTEPPER DE FLUXO PEDAGÓGICO
+       ========================================================================== */
+    .stepper {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius);
+      padding: 0.85rem 1.25rem;
+      margin-bottom: 1.35rem;
+      overflow-x: auto;
+      gap: 0.5rem;
+    }
+    .step-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      white-space: nowrap;
+      cursor: pointer;
+      padding: 0.35rem 0.65rem;
+      border-radius: var(--radius-sm);
+    }
+    .step-item.active { background: var(--primary-light); color: var(--primary); }
+    .step-item.done { color: var(--success); }
+    .step-num {
+      width: 24px; height: 24px; border-radius: 50%;
+      display: inline-flex; align-items: center; justify-content: center;
+      background: var(--border-light); font-size: 0.74rem; font-weight: 700;
+    }
+    .step-item.active .step-num { background: var(--primary); color: #fff; }
+    .step-item.done .step-num { background: var(--success); color: #fff; }
+
+    /* ==========================================================================
+       5. MÓDULO 1: UPLOAD E PROCESSAMENTO DE IMAGEM
+       ========================================================================== */
+    .dropzone {
+      border: 2px dashed #94a3b8;
+      border-radius: var(--radius);
+      background: var(--bg-subtle);
+      padding: 2.25rem 1.5rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .dropzone:hover, .dropzone.dragover { border-color: var(--primary); background: var(--primary-light); }
+    .canvas-viewport {
+      background: #0f172a;
+      border-radius: var(--radius-sm);
+      overflow: auto;
+      max-height: 460px;
+      min-height: 280px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      border: 1px solid var(--border);
+    }
+    .canvas-viewport canvas { max-width: 100%; transition: transform 0.15s ease; transform-origin: center center; }
+    .toolbar-row { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; margin: 0.75rem 0; }
+    .slider-control { display: flex; flex-direction: column; gap: 0.2rem; font-size: 0.78rem; }
+    .progress-bar-wrap { width: 100%; height: 10px; background: var(--border-light); border-radius: 999px; overflow: hidden; margin: 0.5rem 0; }
+    .progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--primary), var(--secondary)); width: 0%; transition: width 0.25s ease; }
+
+    /* ==========================================================================
+       6. MÓDULO 2, 3, 4, 5: TRANSCRIÇÃO, NOTAS, ERROS E DIFF
+       ========================================================================== */
+    .readonly-box {
+      background: var(--bg-subtle);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 0.85rem;
+      font-size: 0.88rem;
+      white-space: pre-wrap;
+      min-height: 220px;
+      max-height: 360px;
+      overflow-y: auto;
+      color: var(--text-muted);
+    }
+    .criteria-row { border: 1px solid var(--border-light); border-radius: var(--radius-sm); padding: 0.9rem; margin-bottom: 0.75rem; background: var(--bg-subtle); }
+    .criteria-top { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 0.45rem; }
+    .score-input { width: 85px; padding: 0.35rem 0.5rem; font-weight: 700; text-align: center; border: 1px solid var(--primary); border-radius: var(--radius-sm); }
+
+    .error-item { border: 1px solid var(--border-light); border-left: 4px solid var(--danger); border-radius: var(--radius-sm); padding: 0.9rem; margin-bottom: 0.75rem; background: #fff; }
+    .error-item.style-suggestion { border-left-color: var(--info); }
+    .diff-del { background: #fee2e2; color: #991b1b; text-decoration: line-through; padding: 0 3px; border-radius: 3px; }
+    .diff-ins { background: #dcfce7; color: #166534; font-weight: 600; padding: 0 3px; border-radius: 3px; }
+
+    /* ==========================================================================
+       7. TABELAS, RELATÓRIO E MODAL
+       ========================================================================== */
+    table.data-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    table.data-table th, table.data-table td { padding: 0.65rem 0.75rem; border: 1px solid var(--border-light); text-align: left; }
+    table.data-table th { background: var(--bg-subtle); font-weight: 700; color: var(--text-main); }
+    table.data-table tr.total-row { background: var(--primary-light); font-weight: 800; color: var(--primary); }
+
+    .view-section { display: none; }
+    .view-section.active { display: block; }
+
+    .modal-backdrop {
+      position: fixed; inset: 0; background: rgba(15, 23, 42, 0.55);
+      display: none; align-items: center; justify-content: center; z-index: 100; padding: 1rem;
+    }
+    .modal-backdrop.open { display: flex; }
+    .modal-box { background: #fff; border-radius: var(--radius); max-width: 460px; width: 100%; padding: 1.4rem; box-shadow: var(--shadow-lg); }
+
+    .toast-container { position: fixed; bottom: 1.25rem; right: 1.25rem; z-index: 110; display: flex; flex-direction: column; gap: 0.5rem; }
+    .toast {
+      background: #0f172a; color: #fff; padding: 0.75rem 1rem; border-radius: var(--radius-sm);
+      font-size: 0.84rem; box-shadow: var(--shadow-md); max-width: 360px; border-left: 4px solid #3b82f6;
+    }
+
+    @media (max-width: 960px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.open { transform: translateX(0); }
+      .main-wrapper { margin-left: 0; }
+      .menu-toggle { display: inline-flex; }
+      .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+    }
+
+    @media print {
+      body { background: #fff; }
+      .sidebar, .topbar, .stepper, .no-print, .toast-container { display: none !important; }
+      .main-wrapper { margin-left: 0 !important; }
+      .content-area { padding: 0 !important; max-width: 100% !important; }
+      .view-section { display: none !important; }
+      #view-relatorio { display: block !important; }
+      .card { box-shadow: none !important; border: 1px solid #cbd5e1 !important; break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+<div class="app-shell">
+  <!-- MENU LATERAL -->
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <span class="brand-badge">Assistente Docente</span>
+      <h1>CORRIGE REDAÇÃO IA</h1>
+      <p>Da escrita à avaliação: correção inteligente, pedagógica e precisa.</p>
+    </div>
+
+    <nav class="nav-menu" aria-label="Navegação principal">
+      <div class="nav-section-title">Visão Geral</div>
+      <button class="nav-btn active" data-view="dashboard">
+        <span class="nav-step">⌂</span> Painel Administrativo
+      </button>
+
+      <div class="nav-section-title">Fluxo de Correção</div>
+      <button class="nav-btn" data-view="etapa1">
+        <span class="nav-step">1</span> Imagem e OCR (Português)
+      </button>
+      <button class="nav-btn" data-view="etapa2">
+        <span class="nav-step">2</span> Conferência da Transcrição
+      </button>
+      <button class="nav-btn" data-view="etapa3">
+        <span class="nav-step">3</span> Correção Automática e Notas
+      </button>
+      <button class="nav-btn" data-view="relatorio">
+        <span class="nav-step">4</span> Relatório e Impressão
+      </button>
+
+      <div class="nav-section-title">Gestão e Sistema</div>
+      <button class="nav-btn" data-view="historico">
+        <span class="nav-step">☰</span> Histórico de Avaliações
+      </button>
+      <button class="nav-btn" data-view="config">
+        <span class="nav-step">⚙</span> Configuração de API / IA
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="status-pill" id="netStatus">
+        <span class="dot online"></span> <span>Verificando rede...</span>
+      </div>
+      <div class="status-pill" id="aiStatusSide">
+        <span class="dot online"></span> <span>Motor Automático: Ativo</span>
+      </div>
+      <div style="margin-top:0.5rem; font-size:0.7rem; color:#64748b;">
+        Decisão final sempre sob responsabilidade do professor.
+      </div>
+    </div>
+  </aside>
+
+  <!-- ÁREA PRINCIPAL -->
+  <div class="main-wrapper">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="menu-toggle" id="menuToggle" aria-label="Abrir menu">☰</button>
+        <div class="topbar-title">
+          <h2 id="pageTitle">Painel Administrativo</h2>
+          <span id="pageSubtitle">Visão geral das avaliações, motores de análise e início rápido</span>
+        </div>
+      </div>
+      <div class="topbar-actions no-print">
+        <button class="btn btn-outline btn-sm" id="btnNovaAvaliacao">+ Nova Avaliação</button>
+        <button class="btn btn-primary btn-sm" id="btnSalvarRascunho">💾 Salvar no Histórico Local</button>
+      </div>
+    </header>
+
+    <main class="content-area">
+      <!-- BARRA DE PROGRESSO DO FLUXO -->
+      <div class="stepper no-print" id="flowStepper">
+        <div class="step-item active" data-jump="etapa1"><span class="step-num">1</span> Imagem &amp; OCR</div>
+        <span>→</span>
+        <div class="step-item" data-jump="etapa2"><span class="step-num">2</span> Revisão &amp; Confirmação</div>
+        <span>→</span>
+        <div class="step-item" data-jump="etapa3"><span class="step-num">3</span> Correção Automática &amp; Notas</div>
+        <span>→</span>
+        <div class="step-item" data-jump="relatorio"><span class="step-num">4</span> Relatório &amp; Aprovação</div>
+      </div>
+
+      <!-- ====================================================================
+           VIEW 0: PAINEL ADMINISTRATIVO
+           ==================================================================== -->
+      <section class="view-section active" id="view-dashboard">
+        <div class="grid-4" style="margin-bottom:1.25rem;">
+          <div class="stat-card">
+            <div class="stat-label">Avaliações Salvas</div>
+            <div class="stat-value" id="statTotal">0</div>
+            <div class="stat-sub">Armazenadas no LocalStorage</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Média Geral</div>
+            <div class="stat-value" id="statMedia">—</div>
+            <div class="stat-sub">Escala de 0,0 a 10,0 pontos</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Aprovadas pelo Professor</div>
+            <div class="stat-value" id="statAprovadas">0</div>
+            <div class="stat-sub">Revisão docente concluída</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Correção Automática</div>
+            <div class="stat-value" style="font-size:1.1rem; padding-top:0.35rem; color:var(--success);" id="statMotor">Híbrido (Local + IA)</div>
+            <div class="stat-sub">Pronto para corrigir imediatamente</div>
+          </div>
+        </div>
+
+        <div class="alert alert-success">
+          <strong>Correção Automática Pronta para Uso:</strong> O sistema opera com <strong>dois modos integrados</strong>:
+          <ul style="margin:0.35rem 0 0 1.25rem;">
+            <li><strong>Motor Híbrido Automático Integrado (Funciona sem precisar configurar nada):</strong> Realiza análise linguística e textual imediata diretamente no navegador — detecta desvios ortográficos e gramaticais comuns do português brasileiro, verifica acentuação, pontuação, paragrafação, conectivos de coesão, adequação ao tema/gênero, gera a versão corrigida destacada e calcula as notas dos 5 critérios automaticamente.</li>
+            <li><strong>IA Generativa Externa (Opcional — Gemini / OpenAI / Proxy):</strong> Caso deseje avaliação semântica profunda por LLM, basta inserir uma chave de API do Google Gemini (gratuita no Google AI Studio) ou endpoint na aba <em>Configuração de API / IA</em>.</li>
+          </ul>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">📋 Disponibilidade dos Recursos</div>
+            </div>
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Recurso / Módulo</th>
+                  <th>Dependência</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Correção Automática Linguística e Pedagógica</td>
+                  <td>Motor Integrado no Navegador (+ API LanguageTool opcional)</td>
+                  <td><span class="badge badge-green">Ativo Imediatamente</span></td>
+                </tr>
+                <tr>
+                  <td>Análise Profunda via IA Generativa (Gemini / OpenAI)</td>
+                  <td>Chave de API / Endpoint (Opcional)</td>
+                  <td id="dashAiBadge"><span class="badge badge-blue">Modo Automático Local Ativo</span></td>
+                </tr>
+                <tr>
+                  <td>Tratamento de Imagem (Zoom, Giro, Contraste)</td>
+                  <td>HTML5 Canvas Nativo</td>
+                  <td><span class="badge badge-green">Disponível Offline</span></td>
+                </tr>
+                <tr>
+                  <td>Transcrição OCR (Idioma Português)</td>
+                  <td>CDN Tesseract.js (<code>por</code>)</td>
+                  <td><span class="badge badge-amber">Requer Internet (1º uso)</span></td>
+                </tr>
+                <tr>
+                  <td>Relatório, Impressão/PDF e Histórico Local</td>
+                  <td>Navegador (LocalStorage)</td>
+                  <td><span class="badge badge-green">Disponível Offline</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">🚀 Iniciar Nova Correção</div>
+            </div>
+            <p style="font-size:0.88rem; color:var(--text-muted); margin-bottom:1rem;">
+              Envie a imagem de uma redação manuscrita para transcrição via OCR ou digite/cole diretamente o texto para correção automática imediata.
+            </p>
+            <div style="display:flex; gap:0.65rem; flex-wrap:wrap;">
+              <button class="btn btn-primary" data-jump="etapa1">1. Enviar Imagem da Redação →</button>
+              <button class="btn btn-secondary" data-jump="etapa2">✏️ Digitar / Colar Texto Direto</button>
+              <button class="btn btn-outline" data-jump="config">⚙ Configurar API Gemini/IA</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           VIEW 1: MÓDULO 1 — IDENTIFICAÇÃO, IMAGEM E OCR
+           ==================================================================== -->
+      <section class="view-section" id="view-etapa1">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">🧑‍🎓 Identificação da Avaliação e Proposta</div>
+            <span class="badge badge-blue">Dados para o Relatório</span>
+          </div>
+          <div class="grid-3">
+            <div class="form-group">
+              <label class="form-label" for="inpEstudante">Nome do Estudante *</label>
+              <input type="text" id="inpEstudante" class="form-control" placeholder="Ex.: Maria Clara Oliveira" />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="inpTurma">Turma *</label>
+              <input type="text" id="inpTurma" class="form-control" placeholder="Ex.: 3º Ano B - Ensino Médio" />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="inpDisciplina">Disciplina</label>
+              <input type="text" id="inpDisciplina" class="form-control" value="Língua Portuguesa / Redação" />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="inpGenero">Gênero Textual *</label>
+              <select id="inpGenero" class="form-control">
+                <option value="Dissertativo-argumentativo">Dissertativo-argumentativo (ENEM/Vestibular)</option>
+                <option value="Narrativo / Conto">Narrativo / Conto</option>
+                <option value="Crônica">Crônica</option>
+                <option value="Carta Argumentativa">Carta Argumentativa</option>
+                <option value="Artigo de Opinião">Artigo de Opinião</option>
+                <option value="Relato Pessoal">Relato Pessoal</option>
+                <option value="Outro gênero escolar">Outro gênero escolar</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="inpNivel">Nível de Ensino</label>
+              <select id="inpNivel" class="form-control">
+                <option value="Ensino Médio">Ensino Médio</option>
+                <option value="Ensino Fundamental II (6º ao 9º ano)">Ensino Fundamental II (6º ao 9º ano)</option>
+                <option value="Ensino Fundamental I (1º ao 5º ano)">Ensino Fundamental I (1º ao 5º ano)</option>
+                <option value="Pré-Vestibular / EJA">Pré-Vestibular / EJA</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="inpData">Data da Avaliação</label>
+              <input type="date" id="inpData" class="form-control" />
+            </div>
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label class="form-label" for="inpTema">Tema / Proposta da Redação *</label>
+            <input type="text" id="inpTema" class="form-control" placeholder="Ex.: Os desafios da inclusão digital nas escolas públicas brasileiras" />
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <!-- Upload e Pré-visualização -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">📷 Módulo 1 — Envio e Pré-processamento da Imagem</div>
+              <button class="btn btn-outline btn-sm" id="btnSubstituirImg" style="display:none;">Trocar Imagem</button>
+            </div>
+
+            <div class="dropzone" id="dropzone" tabindex="0" role="button" aria-label="Selecionar ou arrastar imagem da redação">
+              <div style="font-size:2rem; margin-bottom:0.4rem;">📄</div>
+              <strong>Clique para selecionar ou arraste a imagem da redação aqui</strong>
+              <p style="font-size:0.8rem; color:var(--text-muted); margin-top:0.3rem;">
+                Formatos aceitos: <strong>JPG, JPEG, PNG e WEBP</strong> (máx. 15 MB)
+              </p>
+              <input type="file" id="fileInput" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" hidden />
+            </div>
+
+            <div id="imageEditorArea" style="display:none; margin-top:0.75rem;">
+              <div class="toolbar-row">
+                <button class="btn btn-outline btn-sm" id="btnZoomIn" title="Ampliar">🔍+ Ampliar</button>
+                <button class="btn btn-outline btn-sm" id="btnZoomOut" title="Reduzir">🔍− Reduzir</button>
+                <button class="btn btn-outline btn-sm" id="btnRotateLeft" title="Girar -90°">↺ Girar -90°</button>
+                <button class="btn btn-outline btn-sm" id="btnRotateRight" title="Girar +90°">↻ Girar +90°</button>
+                <button class="btn btn-outline btn-sm" id="btnAutoEnhance" title="Otimizar contraste e escala de cinza para OCR">✨ Otimizar p/ OCR</button>
+                <button class="btn btn-outline btn-sm" id="btnResetImg" title="Restaurar original">Restaurar</button>
+              </div>
+
+              <div class="grid-3" style="margin-bottom:0.75rem; background:var(--bg-subtle); padding:0.65rem; border-radius:var(--radius-sm);">
+                <div class="slider-control">
+                  <label for="rngBrightness">Brilho: <span id="valBrightness">100%</span></label>
+                  <input type="range" id="rngBrightness" min="50" max="180" value="100" />
+                </div>
+                <div class="slider-control">
+                  <label for="rngContrast">Contraste: <span id="valContrast">100%</span></label>
+                  <input type="range" id="rngContrast" min="50" max="220" value="100" />
+                </div>
+                <div class="slider-control">
+                  <label><input type="checkbox" id="chkGrayscale" /> Escala de Cinza / Nitidez</label>
+                  <span style="font-size:0.72rem; color:var(--text-muted);">Melhora leitura de tinta azul/preta</span>
+                </div>
+              </div>
+
+              <div class="canvas-viewport">
+                <canvas id="imageCanvas"></canvas>
+              </div>
+
+              <div id="qualityDiagnostic" class="alert alert-info" style="margin-top:0.75rem; margin-bottom:0;">
+                Diagnóstico de qualidade aguardando imagem.
+              </div>
+            </div>
+          </div>
+
+          <!-- Execução do OCR -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">🔎 Reconhecimento Óptico de Caracteres (OCR)</div>
+              <span class="badge badge-teal">Idioma: Português (por)</span>
+            </div>
+
+            <div class="alert alert-info">
+              <strong>Fidelidade do OCR:</strong> Preserva parágrafos, acentuação, pontuação e maiúsculas/minúsculas. Trechos ilegíveis recebem <code>[TRECHO ILEGÍVEL]</code> sem invenção de palavras.
+            </div>
+
+            <div style="margin: 1rem 0;">
+              <button class="btn btn-primary" id="btnRunOcr" disabled style="width:100%; padding:0.75rem;">
+                ▶ Executar Reconhecimento de Texto (OCR)
+              </button>
+            </div>
+
+            <div id="ocrProgressBox" style="display:none; margin-bottom:1rem;">
+              <div style="display:flex; justify-content:space-between; font-size:0.8rem; font-weight:600;">
+                <span id="ocrStatusText">Inicializando motor Tesseract.js...</span>
+                <span id="ocrPercentText">0%</span>
+              </div>
+              <div class="progress-bar-wrap">
+                <div class="progress-bar-fill" id="ocrProgressBar"></div>
+              </div>
+            </div>
+
+            <div id="ocrConfidenceBox" style="display:none; margin-bottom:1rem;"></div>
+
+            <div class="form-group">
+              <label class="form-label">Prévia da Transcrição Bruta (OCR)</label>
+              <textarea id="ocrPreviewBox" class="form-control" rows="10" readonly placeholder="O texto extraído da imagem aparecerá aqui após o processamento OCR..."></textarea>
+            </div>
+
+            <div style="display:flex; justify-content:space-between; gap:0.5rem; flex-wrap:wrap;">
+              <button class="btn btn-outline btn-sm" id="btnPularParaDigitacao">Digitar / Colar Texto Manualmente</button>
+              <button class="btn btn-secondary" id="btnIrEtapa2">Avançar para Conferência (Etapa 2) →</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           VIEW 2: MÓDULO 2 — TRANSCRIÇÃO E CONFERÊNCIA DOCENTE
+           ==================================================================== -->
+      <section class="view-section" id="view-etapa2">
+        <div class="alert alert-info">
+          <strong>Conferência Docente:</strong> Revise ou digite o texto da redação no quadro à direita. A <strong>Transcrição Original</strong> (à esquerda) permanece preservada para comparação. Ao clicar em <strong>Confirmar Transcrição</strong>, o sistema avança para a correção automática.
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">🔒 Transcrição Original (OCR Bruto)</div>
+              <button class="btn btn-outline btn-sm" id="btnCopiarOriginal">Copiar Original</button>
+            </div>
+            <div class="readonly-box" id="boxTranscricaoOriginal">Nenhuma transcrição OCR realizada ainda.</div>
+            <p style="font-size:0.76rem; color:var(--text-muted); margin-top:0.5rem;">
+              Este registro permanece intacto para auditoria no relatório final.
+            </p>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">✏️ Transcrição Editável (Revisão do Professor)</div>
+              <div style="display:flex; gap:0.4rem;">
+                <button class="btn btn-outline btn-sm" id="btnRestaurarDoOcr">Restaurar do OCR</button>
+                <button class="btn btn-outline btn-sm" id="btnCopiarConfirmada">Copiar Texto</button>
+              </div>
+            </div>
+            <textarea id="txtTranscricaoConfirmada" class="form-control" rows="13" placeholder="Cole ou revise aqui o texto da redação do estudante..."></textarea>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:0.65rem; flex-wrap:wrap; gap:0.5rem;">
+              <span style="font-size:0.78rem; color:var(--text-muted);" id="wordCountInfo">0 palavras | 0 caracteres</span>
+              <span id="badgeConfirmacao" class="badge badge-amber">Aguardando Confirmação Docente</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+          <div>
+            <strong>Pronto para corrigir?</strong> Ao confirmar, você poderá executar a correção automática imediatamente na Etapa 3.
+          </div>
+          <div style="display:flex; gap:0.65rem; flex-wrap:wrap;">
+            <button class="btn btn-outline" data-jump="etapa1">← Voltar à Imagem</button>
+            <button class="btn btn-success" id="btnConfirmarTranscricao">✔ Confirmar e Corrigir Automaticamente →</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           VIEW 3: MÓDULOS 3, 4, 5 e 7 — CORREÇÃO AUTOMÁTICA, ERROS E NOTAS
+           ==================================================================== -->
+      <section class="view-section" id="view-etapa3">
+        <!-- Painel de Acionamento da Correção Automática -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">🧠 Módulo 3 — Correção Automática Pedagógica e Linguística</div>
+            <span id="aiConnectionBadge" class="badge badge-green">Motor Automático Híbrido Ativo</span>
+          </div>
+
+          <div id="aiModeBanner" class="alert alert-info" style="margin-bottom:0.85rem;">
+            <strong>Modo Ativo:</strong> <span id="aiModeDescription">Correção Automática Integrada (Análise gramatical, ortográfica, estrutural, coesiva e cálculo de notas nos 5 critérios). Para usar IA generativa externa (Gemini/OpenAI), <a href="#" id="linkOpenConfig" style="font-weight:700; color:inherit;">configure sua chave/endpoint aqui</a>.</span>
+          </div>
+
+          <div style="display:flex; gap:0.75rem; flex-wrap:wrap; align-items:center;">
+            <button class="btn btn-primary" id="btnAnalisarComIA" style="padding:0.65rem 1.25rem; font-size:0.9rem;">
+              ⚡ Executar Correção Automática Agora
+            </button>
+            <button class="btn btn-outline" id="btnAddErroManual">+ Adicionar Ocorrência Manualmente</button>
+            <span id="aiLoadingText" style="font-size:0.84rem; color:var(--primary); font-weight:600; display:none;">
+              ⏳ Analisando ortografia, gramática, coesão, estrutura e tema...
+            </span>
+          </div>
+        </div>
+
+        <!-- Grade de Avaliação nos 5 Critérios (Total: 10,0 pontos) -->
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">📊 Matriz de Avaliação (Total: 10,0 pontos)</div>
+              <span class="badge badge-blue">Editável pelo Professor</span>
+            </div>
+
+            <div id="criteriaContainer">
+              <!-- Critério 1 -->
+              <div class="criteria-row">
+                <div class="criteria-top">
+                  <div>
+                    <strong>Critério 1 — Adequação ao Tema</strong>
+                    <div style="font-size:0.76rem; color:var(--text-muted);">Compreensão da proposta, pertinência, foco e atendimento ao gênero (Máx: 2,0)</div>
+                  </div>
+                  <div>
+                    <input type="number" step="0.1" min="0" max="2.0" value="0" class="score-input crit-score" data-max="2.0" id="scoreC1" /> / 2,0
+                  </div>
+                </div>
+                <textarea class="form-control" rows="2" id="justC1" placeholder="Justificativa fundamentada em evidências do texto..."></textarea>
+              </div>
+
+              <!-- Critério 2 -->
+              <div class="criteria-row">
+                <div class="criteria-top">
+                  <div>
+                    <strong>Critério 2 — Estrutura e Organização Textual</strong>
+                    <div style="font-size:0.76rem; color:var(--text-muted);">Paragrafação, progressão lógica e adequação à estrutura do gênero (Máx: 2,0)</div>
+                  </div>
+                  <div>
+                    <input type="number" step="0.1" min="0" max="2.0" value="0" class="score-input crit-score" data-max="2.0" id="scoreC2" /> / 2,0
+                  </div>
+                </div>
+                <textarea class="form-control" rows="2" id="justC2" placeholder="Justificativa sobre organização e progressão textual..."></textarea>
+              </div>
+
+              <!-- Critério 3 -->
+              <div class="criteria-row">
+                <div class="criteria-top">
+                  <div>
+                    <strong>Critério 3 — Argumentação e Coerência</strong>
+                    <div style="font-size:0.76rem; color:var(--text-muted);">Clareza, consistência argumentativa, ausência de contradições e exemplos (Máx: 2,0)</div>
+                  </div>
+                  <div>
+                    <input type="number" step="0.1" min="0" max="2.0" value="0" class="score-input crit-score" data-max="2.0" id="scoreC3" /> / 2,0
+                  </div>
+                </div>
+                <textarea class="form-control" rows="2" id="justC3" placeholder="Justificativa sobre coerência e defesa de ideias..."></textarea>
+              </div>
+
+              <!-- Critério 4 -->
+              <div class="criteria-row">
+                <div class="criteria-top">
+                  <div>
+                    <strong>Critério 4 — Coesão Textual</strong>
+                    <div style="font-size:0.76rem; color:var(--text-muted);">Conectivos, referenciação pronominal, articulação inter/intraparágrafos (Máx: 1,5)</div>
+                  </div>
+                  <div>
+                    <input type="number" step="0.1" min="0" max="1.5" value="0" class="score-input crit-score" data-max="1.5" id="scoreC4" /> / 1,5
+                  </div>
+                </div>
+                <textarea class="form-control" rows="2" id="justC4" placeholder="Justificativa sobre mecanismos coesivos..."></textarea>
+              </div>
+
+              <!-- Critério 5 -->
+              <div class="criteria-row">
+                <div class="criteria-top">
+                  <div>
+                    <strong>Critério 5 — Domínio da Norma-Padrão</strong>
+                    <div style="font-size:0.76rem; color:var(--text-muted);">Ortografia, acentuação, concordância, regência, crase, pontuação e sintaxe (Máx: 2,5)</div>
+                  </div>
+                  <div>
+                    <input type="number" step="0.1" min="0" max="2.5" value="0" class="score-input crit-score" data-max="2.5" id="scoreC5" /> / 2,5
+                  </div>
+                </div>
+                <textarea class="form-control" rows="2" id="justC5" placeholder="Justificativa sobre adequação gramatical e registro formal..."></textarea>
+              </div>
+            </div>
+
+            <!-- Resumo da Nota e Classificação (Módulo 7) -->
+            <div style="background:var(--primary-light); border:1px solid #bfdbfe; border-radius:var(--radius-sm); padding:1rem; margin-top:0.75rem;">
+              <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem;">
+                <div>
+                  <div style="font-size:0.78rem; font-weight:700; color:var(--primary); text-transform:uppercase;">Nota Final Calculada</div>
+                  <div style="font-size:1.85rem; font-weight:800; color:var(--primary);" id="lblNotaFinal">0,0 / 10,0</div>
+                </div>
+                <div style="text-align:right;">
+                  <div style="font-size:0.78rem; color:var(--text-muted); font-weight:600;">Classificação de Desempenho</div>
+                  <span id="badgeClassificacao" class="badge badge-red" style="font-size:0.88rem; padding:0.35rem 0.75rem; margin-top:0.2rem;">Insuficiente</span>
+                </div>
+              </div>
+              <p id="txtExplicacaoClassificacao" style="font-size:0.82rem; color:#1e3a8a; margin-top:0.6rem;">
+                0,0 a 3,9 — Insuficiente: O texto apresenta dificuldades severas de atendimento à proposta, estruturação ou domínio linguístico, demandando intervenção pedagógica intensiva.
+              </p>
+            </div>
+          </div>
+
+          <!-- Módulo 4: Erros Identificados e Módulo 5: Redação Corrigida -->
+          <div>
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">🔍 Módulo 4 — Erros e Sugestões Identificados</div>
+                <span class="badge badge-teal" id="countErrosBadge">0 ocorrências</span>
+              </div>
+              <div id="errosListContainer" style="max-height:420px; overflow-y:auto;">
+                <p style="font-size:0.85rem; color:var(--text-muted);">
+                  Clique em <strong>"Executar Correção Automática Agora"</strong> acima para identificar desvios e gerar sugestões pedagógicas.
+                </p>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">✨ Módulo 5 — Redação Corrigida (Preservando Ideias Originais)</div>
+                <button class="btn btn-outline btn-sm" id="btnCopiarCorrigida">Copiar Corrigida</button>
+              </div>
+              <textarea id="txtRedacaoCorrigida" class="form-control" rows="8" placeholder="A versão revisada será gerada automaticamente aqui..."></textarea>
+
+              <div style="margin-top:0.85rem;">
+                <div style="font-size:0.8rem; font-weight:700; margin-bottom:0.35rem;">Comparação Visual (Original Confirmada vs. Corrigida):</div>
+                <div class="readonly-box" id="diffComparisonBox" style="min-height:110px; max-height:200px; background:#fff;">
+                  Execute a correção automática para visualizar as alterações destacadas.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Parecer Geral do Professor e Aprovação -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">👩‍🏫 Parecer Pedagógico e Aprovação Docente</div>
+          </div>
+          <div class="grid-2">
+            <div class="form-group">
+              <label class="form-label" for="txtComentarioGeral">Comentário Geral do Professor</label>
+              <textarea id="txtComentarioGeral" class="form-control" rows="3" placeholder="Síntese avaliativa dirigida ao estudante..."></textarea>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="txtRecomendacoes">Recomendações para Melhorar a Escrita</label>
+              <textarea id="txtRecomendacoes" class="form-control" rows="3" placeholder="Orientações práticas de estudo, reescrita e leitura..."></textarea>
+            </div>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem; border-top:1px solid var(--border-light); padding-top:1rem;">
+            <label style="display:flex; align-items:center; gap:0.5rem; font-size:0.88rem; font-weight:700; cursor:pointer;">
+              <input type="checkbox" id="chkAprovacaoDocente" style="width:18px; height:18px;" />
+              Confirmo que revisei os critérios, as justificativas e aprovo a nota final desta avaliação.
+            </label>
+            <button class="btn btn-success" id="btnGerarRelatorio">📄 Finalizar e Emitir Relatório →</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           VIEW 4: MÓDULO 6 — RELATÓRIO INDIVIDUAL COMPLETO
+           ==================================================================== -->
+      <section class="view-section" id="view-relatorio">
+        <div class="card no-print" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem;">
+          <div>
+            <strong>Relatório Oficial de Avaliação</strong>
+            <span style="font-size:0.82rem; color:var(--text-muted); display:block;">Pronto para impressão ou exportação em PDF pelo navegador (Ctrl+P / Salvar como PDF).</span>
+          </div>
+          <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+            <button class="btn btn-outline btn-sm" data-jump="etapa3">← Voltar à Correção</button>
+            <button class="btn btn-secondary btn-sm" id="btnSalvarRelatorio">💾 Salvar Avaliação</button>
+            <button class="btn btn-primary btn-sm" id="btnImprimirPdf">🖨️ Imprimir / Exportar PDF</button>
+          </div>
+        </div>
+
+        <div class="card" id="printableReport">
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; border-bottom:2px solid var(--primary); padding-bottom:1rem; margin-bottom:1.25rem; flex-wrap:wrap; gap:1rem;">
+            <div>
+              <div style="font-size:0.75rem; font-weight:700; color:var(--primary); text-transform:uppercase; letter-spacing:0.06em;">Relatório Individual de Avaliação Textual</div>
+              <h2 style="font-size:1.35rem; font-weight:800; color:var(--text-main);">CORRIGE REDAÇÃO IA</h2>
+              <p style="font-size:0.8rem; color:var(--text-muted);">Da escrita à avaliação: correção inteligente, pedagógica e precisa.</p>
+            </div>
+            <div style="text-align:right;">
+              <div id="repStatusAprovacao" class="badge badge-amber">Rascunho (Não Aprovado)</div>
+              <div style="font-size:0.78rem; color:var(--text-muted); margin-top:0.35rem;" id="repDataEmissao">Data: —</div>
+            </div>
+          </div>
+
+          <h3 style="font-size:0.95rem; color:var(--primary); margin-bottom:0.6rem;">1. Identificação do Estudante e Proposta</h3>
+          <table class="data-table" style="margin-bottom:1.25rem;">
+            <tbody>
+              <tr>
+                <th style="width:18%;">Estudante</th>
+                <td style="width:32%;" id="repEstudante">—</td>
+                <th style="width:18%;">Turma</th>
+                <td style="width:32%;" id="repTurma">—</td>
+              </tr>
+              <tr>
+                <th>Disciplina</th>
+                <td id="repDisciplina">—</td>
+                <th>Nível / Gênero</th>
+                <td id="repNivelGenero">—</td>
+              </tr>
+              <tr>
+                <th>Tema da Redação</th>
+                <td colspan="3" id="repTema">—</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3 style="font-size:0.95rem; color:var(--primary); margin-bottom:0.6rem;">2. Quadro de Pontuação e Desempenho</h3>
+          <table class="data-table" style="margin-bottom:1rem;">
+            <thead>
+              <tr>
+                <th>Critério de Avaliação</th>
+                <th style="width:140px; text-align:center;">Pontuação Máxima</th>
+                <th style="width:140px; text-align:center;">Nota Obtida</th>
+                <th>Fundamentação Pedagógica</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>1. Adequação ao tema</td>
+                <td style="text-align:center;">2,0</td>
+                <td style="text-align:center; font-weight:700;" id="repC1">0,0</td>
+                <td id="repJ1">—</td>
+              </tr>
+              <tr>
+                <td>2. Estrutura textual</td>
+                <td style="text-align:center;">2,0</td>
+                <td style="text-align:center; font-weight:700;" id="repC2">0,0</td>
+                <td id="repJ2">—</td>
+              </tr>
+              <tr>
+                <td>3. Argumentação e coerência</td>
+                <td style="text-align:center;">2,0</td>
+                <td style="text-align:center; font-weight:700;" id="repC3">0,0</td>
+                <td id="repJ3">—</td>
+              </tr>
+              <tr>
+                <td>4. Coesão textual</td>
+                <td style="text-align:center;">1,5</td>
+                <td style="text-align:center; font-weight:700;" id="repC4">0,0</td>
+                <td id="repJ4">—</td>
+              </tr>
+              <tr>
+                <td>5. Norma-padrão</td>
+                <td style="text-align:center;">2,5</td>
+                <td style="text-align:center; font-weight:700;" id="repC5">0,0</td>
+                <td id="repJ5">—</td>
+              </tr>
+              <tr class="total-row">
+                <td>TOTAL / CLASSIFICAÇÃO</td>
+                <td style="text-align:center;">10,0</td>
+                <td style="text-align:center; font-size:1.05rem;" id="repTotal">0,0</td>
+                <td id="repClassificacao">Insuficiente</td>
+              </tr>
+            </tbody>
+          </table>
+          <p id="repDescClassificacao" style="font-size:0.83rem; color:var(--text-muted); margin-bottom:1.25rem;"></p>
+
+          <h3 style="font-size:0.95rem; color:var(--primary); margin-bottom:0.6rem;">3. Produção Textual e Versão Corrigida</h3>
+          <div class="grid-2" style="margin-bottom:1.25rem;">
+            <div>
+              <strong style="font-size:0.82rem; display:block; margin-bottom:0.35rem;">Versão Original Confirmada (Estudante):</strong>
+              <div class="readonly-box" id="repTextoConfirmado" style="background:#fff; min-height:150px;">—</div>
+            </div>
+            <div>
+              <strong style="font-size:0.82rem; display:block; margin-bottom:0.35rem;">Versão Corrigida (Sugestão Revisada):</strong>
+              <div class="readonly-box" id="repTextoCorrigido" style="background:#fff; min-height:150px;">—</div>
+            </div>
+          </div>
+
+          <details style="margin-bottom:1.25rem; font-size:0.82rem;">
+            <summary style="cursor:pointer; font-weight:600; color:var(--text-muted);">Exibir Transcrição Bruta Inicial do OCR (Auditoria)</summary>
+            <div class="readonly-box" id="repTextoOcrBruto" style="margin-top:0.5rem; min-height:80px;">—</div>
+          </details>
+
+          <h3 style="font-size:0.95rem; color:var(--primary); margin-bottom:0.6rem;">4. Detalhamento de Ocorrências Linguísticas e Textuais</h3>
+          <div id="repErrosContainer" style="margin-bottom:1.25rem;">
+            <p style="font-size:0.84rem; color:var(--text-muted);">Nenhuma ocorrência registrada.</p>
+          </div>
+
+          <h3 style="font-size:0.95rem; color:var(--primary); margin-bottom:0.6rem;">5. Parecer Geral e Recomendações Pedagógicas</h3>
+          <div style="background:var(--bg-subtle); border:1px solid var(--border-light); border-radius:var(--radius-sm); padding:0.9rem; margin-bottom:0.75rem;">
+            <strong style="font-size:0.82rem;">Comentário Geral do Professor:</strong>
+            <p id="repComentarioGeral" style="font-size:0.86rem; margin-top:0.25rem; white-space:pre-wrap;">—</p>
+          </div>
+          <div style="background:var(--bg-subtle); border:1px solid var(--border-light); border-radius:var(--radius-sm); padding:0.9rem;">
+            <strong style="font-size:0.82rem;">Recomendações para Melhorar a Escrita:</strong>
+            <p id="repRecomendacoes" style="font-size:0.86rem; margin-top:0.25rem; white-space:pre-wrap;">—</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           VIEW 5: HISTÓRICO DE AVALIAÇÕES (LOCALSTORAGE)
+           ==================================================================== -->
+      <section class="view-section" id="view-historico">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">🗂️ Histórico Local de Redações Avaliadas</div>
+            <button class="btn btn-primary btn-sm" id="btnNovoDoHistorico">+ Nova Redação</button>
+          </div>
+
+          <div class="grid-3" style="margin-bottom:1rem;">
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label" for="filtroBusca">Pesquisar (Estudante, Tema ou Texto)</label>
+              <input type="text" id="filtroBusca" class="form-control" placeholder="Digite para filtrar..." />
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label" for="filtroTurma">Filtrar por Turma</label>
+              <select id="filtroTurma" class="form-control">
+                <option value="">Todas as turmas</option>
+              </select>
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label" for="filtroStatus">Filtrar por Status</label>
+              <select id="filtroStatus" class="form-control">
+                <option value="">Todos</option>
+                <option value="aprovada">Aprovadas pelo Professor</option>
+                <option value="rascunho">Rascunho / Em revisão</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="overflow-x:auto;">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Data</th>
+                  <th>Estudante</th>
+                  <th>Turma</th>
+                  <th>Tema</th>
+                  <th style="text-align:center;">Nota</th>
+                  <th>Classificação</th>
+                  <th>Status</th>
+                  <th style="width:210px;">Ações</th>
+                </tr>
+              </thead>
+              <tbody id="historicoTableBody">
+                <tr>
+                  <td colspan="8" style="text-align:center; color:var(--text-muted); padding:1.5rem;">
+                    Nenhuma avaliação salva no navegador até o momento.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           VIEW 6: CONFIGURAÇÃO DE API / IA
+           ==================================================================== -->
+      <section class="view-section" id="view-config">
+        <div class="alert alert-info">
+          <strong>Como funciona a Correção Automática neste arquivo:</strong>
+          <ul style="margin:0.35rem 0 0 1.25rem;">
+            <li><strong>Modo Padrão (Híbrido Integrado):</strong> Já vem ativado! Combina análise linguística/gramatical em português brasileiro (verificação ortográfica, gramatical, acentuação, pontuação, conectivos coesivos, estrutura de parágrafos e pertinência temática) diretamente no navegador + consulta pública à API gramatical LanguageTool (<code>pt-BR</code>) quando online.</li>
+            <li><strong>Modo Google Gemini API (Direto com sua chave):</strong> Se você possui uma chave da API do Google Gemini (<code>AIza...</code>), selecione abaixo para obter análise semântica completa por inteligência artificial generativa. A chave fica salva apenas na sessão atual do navegador (<code>sessionStorage</code>) e nunca é gravada no código HTML.</li>
+            <li><strong>Modo Proxy Institucional / OpenAI:</strong> Para escolas que hospedam um servidor intermediário seguro.</li>
+          </ul>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">🔌 Seleção do Motor de Correção Automática</div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="cfgAiMode">Motor de Análise</label>
+              <select id="cfgAiMode" class="form-control">
+                <option value="builtin_hybrid">Motor Híbrido Integrado (Funciona Imediatamente sem Chave)</option>
+                <option value="gemini_direct">Google Gemini API Direta (Requer Chave API Gemini)</option>
+                <option value="proxy">Endpoint Proxy Institucional (Chave no Servidor)</option>
+                <option value="openai_compatible">API Compatível com OpenAI (Requer Chave API)</option>
+              </select>
+            </div>
+
+            <div class="form-group" id="endpointGroup" style="display:none;">
+              <label class="form-label" for="cfgEndpointUrl">URL do Endpoint</label>
+              <input type="url" id="cfgEndpointUrl" class="form-control" placeholder="Ex.: https://seu-servidor.org/api/corrigir" />
+            </div>
+
+            <div class="form-group" id="modelGroup" style="display:none;">
+              <label class="form-label" for="cfgModelName">Modelo de IA</label>
+              <input type="text" id="cfgModelName" class="form-control" placeholder="Ex.: gemini-2.5-flash ou gpt-4o-mini" />
+            </div>
+
+            <div class="form-group" id="sessionKeyGroup" style="display:none;">
+              <label class="form-label" for="cfgSessionToken">Chave de API (Armazenada apenas na sessão atual do navegador)</label>
+              <input type="password" id="cfgSessionToken" class="form-control" placeholder="Cole sua chave de API aqui..." autocomplete="off" />
+            </div>
+
+            <div style="display:flex; gap:0.65rem; flex-wrap:wrap;">
+              <button class="btn btn-primary" id="btnSalvarConfig">Salvar Configuração</button>
+              <button class="btn btn-outline" id="btnTestarConexaoIa">Testar Motor / Conexão</button>
+            </div>
+            <div id="cfgTestResult" style="margin-top:0.85rem; font-size:0.83rem;"></div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">📘 Recursos do Motor Híbrido Integrado</div>
+            </div>
+            <div style="font-size:0.85rem; color:var(--text-main); display:flex; flex-direction:column; gap:0.6rem;">
+              <p>O <strong>Motor Híbrido Integrado</strong> foi desenvolvido para garantir que o professor consiga corrigir redações automaticamente assim que abrir o arquivo <code>.html</code>, sem bloqueios:</p>
+              <ul style="padding-left:1.25rem; color:var(--text-muted);">
+                <li><strong>Correção Gramatical e Ortográfica (pt-BR):</strong> Integração automática com o corretor linguístico <em>LanguageTool</em> (quando conectado à internet) somada a dicionário local de desvios frequentes em redações escolares (ex.: <em>"agente/a gente", "mais/mas", "concerteza/com certeza", "mim fazer/eu fazer", "haver/a", "por que/porque"</em>, acentuação e crase).</li>
+                <li><strong>Análise de Coesão Textual:</strong> Mapeia conectivos interparágrafos e intraparágrafos (oposição, conclusão, causa, adição) e alerta repetições vocabulares excessivas.</li>
+                <li><strong>Análise Estrutural e Temática:</strong> Verifica paragrafação conforme o gênero selecionado (introdução, desenvolvimento e conclusão para textos dissertativos) e aderência às palavras-chave do tema informado.</li>
+                <li><strong>Geração da Versão Corrigida:</strong> Aplica as correções ortográficas, gramaticais e de pontuação diretamente sobre o texto do estudante, preservando suas ideias originais.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>
+
+<!-- MODAL PARA ADICIONAR ERRO MANUALMENTE -->
+<div class="modal-backdrop" id="modalErro">
+  <div class="modal-box" style="max-width:560px;">
+    <h3 style="font-size:1.05rem; color:var(--primary); margin-bottom:0.85rem;">Registrar Ocorrência Linguística / Pedagógica</h3>
+    <div class="grid-2">
+      <div class="form-group">
+        <label class="form-label">Categoria</label>
+        <select id="mErrCategoria" class="form-control">
+          <option>1. Erros ortográficos</option>
+          <option>2. Erros de acentuação</option>
+          <option>3. Erros de pontuação</option>
+          <option>4. Erros de concordância</option>
+          <option>5. Erros de regência</option>
+          <option>6. Problemas de coesão</option>
+          <option>7. Problemas de coerência</option>
+          <option>8. Problemas de estrutura textual</option>
+          <option>9. Problemas de argumentação</option>
+          <option>10. Inadequações vocabulares</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Natureza da Ocorrência</label>
+        <select id="mErrNatureza" class="form-control">
+          <option value="Erro efetivo">Erro efetivo</option>
+          <option value="Inadequação gramatical">Inadequação gramatical</option>
+          <option value="Problema de construção textual">Problema de construção textual</option>
+          <option value="Sugestão de melhoria estilística">Sugestão de melhoria estilística (não penalizar)</option>
+        </select>
+      </div>
+    </div>
+    <div class="grid-2">
+      <div class="form-group">
+        <label class="form-label">Palavra ou Trecho Original *</label>
+        <input type="text" id="mErrOriginal" class="form-control" placeholder="Trecho encontrado no texto" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Forma Correta / Sugerida *</label>
+        <input type="text" id="mErrCorreta" class="form-control" placeholder="Reescrita adequada" />
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Explicação Gramatical / Textual *</label>
+      <input type="text" id="mErrExplicacao" class="form-control" placeholder="Regra ou princípio linguístico envolvido" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Justificativa e Sugestão Pedagógica</label>
+      <textarea id="mErrSugestao" class="form-control" rows="2" placeholder="Como o estudante pode evitar esse problema futuramente"></textarea>
+    </div>
+    <div style="display:flex; justify-content:flex-end; gap:0.5rem;">
+      <button class="btn btn-outline" id="btnFecharModalErro">Cancelar</button>
+      <button class="btn btn-primary" id="btnSalvarModalErro">Adicionar Ocorrência</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DE CONFIRMAÇÃO -->
+<div class="modal-backdrop" id="modalConfirm">
+  <div class="modal-box">
+    <h3 id="confirmTitle" style="font-size:1.05rem; margin-bottom:0.5rem;">Confirmar Ação</h3>
+    <p id="confirmMessage" style="font-size:0.88rem; color:var(--text-muted); margin-bottom:1.15rem;"></p>
+    <div style="display:flex; justify-content:flex-end; gap:0.5rem;">
+      <button class="btn btn-outline" id="btnConfirmCancel">Cancelar</button>
+      <button class="btn btn-danger" id="btnConfirmOk">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+/* ============================================================================
+   CORRIGE REDAÇÃO IA — SISTEMA COMPLETO COM MOTOR DE CORREÇÃO AUTOMÁTICA
+   ============================================================================ */
+(() => {
+  'use strict';
+
+  const STORAGE_KEY = 'corrige_redacao_ia_avaliacoes_v2';
+  const CONFIG_KEY = 'corrige_redacao_ia_config_v2';
+
+  const createEmptyEvaluation = () => ({
+    id: 'eval_' + Date.now(),
+    estudante: '',
+    turma: '',
+    disciplina: 'Língua Portuguesa / Redação',
+    genero: 'Dissertativo-argumentativo',
+    nivel: 'Ensino Médio',
+    data: new Date().toISOString().split('T')[0],
+    tema: '',
+    transcricaoOriginal: '',
+    transcricaoConfirmada: '',
+    transcricaoConfirmadaStatus: false,
+    ocrConfiancaMedia: null,
+    criterios: {
+      c1: { nota: 0, justificativa: '' },
+      c2: { nota: 0, justificativa: '' },
+      c3: { nota: 0, justificativa: '' },
+      c4: { nota: 0, justificativa: '' },
+      c5: { nota: 0, justificativa: '' }
+    },
+    erros: [],
+    redacaoCorrigida: '',
+    comentarioGeral: '',
+    recomendacoes: '',
+    aprovadaDocente: false,
+    atualizadoEm: new Date().toISOString()
+  });
+
+  let state = {
+    current: createEmptyEvaluation(),
+    history: [],
+    aiConfig: {
+      mode: 'builtin_hybrid',
+      endpointUrl: '',
+      modelName: 'gemini-2.5-flash'
+    },
+    image: {
+      loaded: false,
+      imgElement: null,
+      rotation: 0,
+      zoom: 1,
+      brightness: 100,
+      contrast: 100,
+      grayscale: false
+    }
+  };
+
+  /* --------------------------------------------------------------------------
+     1. STORAGE MODULE
+     -------------------------------------------------------------------------- */
+  const StorageModule = {
+    loadAll() {
+      try {
+        const rawHist = localStorage.getItem(STORAGE_KEY);
+        state.history = rawHist ? JSON.parse(rawHist) : [];
+      } catch (e) {
+        state.history = [];
+      }
+      try {
+        const rawCfg = localStorage.getItem(CONFIG_KEY);
+        if (rawCfg) {
+          state.aiConfig = { ...state.aiConfig, ...JSON.parse(rawCfg) };
+        }
+      } catch (e) {}
+    },
+    saveHistory() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state.history));
+        return true;
+      } catch (e) {
+        UI.toast('Erro ao salvar no LocalStorage.', 'danger');
+        return false;
+      }
+    },
+    saveConfig() {
+      try {
+        localStorage.setItem(CONFIG_KEY, JSON.stringify(state.aiConfig));
+      } catch (e) {}
+    },
+    upsertCurrentEvaluation() {
+      UI.syncFormToState();
+      state.current.atualizadoEm = new Date().toISOString();
+      const idx = state.history.findIndex(item => item.id === state.current.id);
+      const copy = JSON.parse(JSON.stringify(state.current));
+      if (idx >= 0) state.history[idx] = copy;
+      else state.history.unshift(copy);
+      if (this.saveHistory()) {
+        UI.refreshDashboardStats();
+        UI.renderHistoryTable();
+        UI.toast('Avaliação salva no histórico local!');
+      }
+    },
+    deleteEvaluation(id) {
+      state.history = state.history.filter(item => item.id !== id);
+      this.saveHistory();
+      UI.refreshDashboardStats();
+      UI.renderHistoryTable();
+      UI.toast('Registro excluído permanentemente.');
+    }
+  };
+
+  /* --------------------------------------------------------------------------
+     2. IMAGE PROCESSOR MODULE
+     -------------------------------------------------------------------------- */
+  const ImageProcessor = {
+    ALLOWED_TYPES: ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'],
+    MAX_SIZE_BYTES: 15 * 1024 * 1024,
+
+    handleFile(file) {
+      if (!file) return;
+      if (!this.ALLOWED_TYPES.includes(file.type)) {
+        UI.toast('Formato inválido. Envie apenas JPG, JPEG, PNG ou WEBP.', 'danger');
+        return;
+      }
+      if (file.size > this.MAX_SIZE_BYTES) {
+        UI.toast('A imagem excede o limite de 15 MB.', 'danger');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const img = new Image();
+        img.onload = () => {
+          state.image = {
+            loaded: true,
+            imgElement: img,
+            rotation: 0,
+            zoom: 1,
+            brightness: 100,
+            contrast: 100,
+            grayscale: false
+          };
+          document.getElementById('rngBrightness').value = 100;
+          document.getElementById('rngContrast').value = 100;
+          document.getElementById('valBrightness').textContent = '100%';
+          document.getElementById('valContrast').textContent = '100%';
+          document.getElementById('chkGrayscale').checked = false;
+
+          document.getElementById('dropzone').style.display = 'none';
+          document.getElementById('imageEditorArea').style.display = 'block';
+          document.getElementById('btnSubstituirImg').style.display = 'inline-flex';
+          document.getElementById('btnRunOcr').disabled = false;
+
+          this.renderCanvas();
+          this.analyzeQuality(img);
+          UI.toast('Imagem carregada com sucesso.');
+        };
+        img.onerror = () => UI.toast('Não foi possível decodificar a imagem.', 'danger');
+        img.src = ev.target.result;
+      };
+      reader.readAsDataURL(file);
+    },
+
+    renderCanvas() {
+      if (!state.image.loaded || !state.image.imgElement) return;
+      const canvas = document.getElementById('imageCanvas');
+      const ctx = canvas.getContext('2d');
+      const img = state.image.imgElement;
+      const rad = (state.image.rotation * Math.PI) / 180;
+      const isSwapped = Math.abs(state.image.rotation % 180) === 90;
+
+      const w = isSwapped ? img.height : img.width;
+      const h = isSwapped ? img.width : img.height;
+
+      canvas.width = w;
+      canvas.height = h;
+      canvas.style.transform = `scale(${state.image.zoom})`;
+
+      ctx.save();
+      ctx.clearRect(0, 0, w, h);
+      ctx.filter = `brightness(${state.image.brightness}%) contrast(${state.image.contrast}%) ${state.image.grayscale ? 'grayscale(100%)' : ''}`;
+      ctx.translate(w / 2, h / 2);
+      ctx.rotate(rad);
+      ctx.drawImage(img, -img.width / 2, -img.height / 2);
+      ctx.restore();
+    },
+
+    analyzeQuality(img) {
+      const diagBox = document.getElementById('qualityDiagnostic');
+      const minDim = Math.min(img.width, img.height);
+      const maxDim = Math.max(img.width, img.height);
+
+      const sampleCanvas = document.createElement('canvas');
+      sampleCanvas.width = 120;
+      sampleCanvas.height = 120;
+      const sCtx = sampleCanvas.getContext('2d');
+      sCtx.drawImage(img, 0, 0, 120, 120);
+      const data = sCtx.getImageData(0, 0, 120, 120).data;
+
+      let sum = 0, sumSq = 0;
+      const count = data.length / 4;
+      for (let i = 0; i < data.length; i += 4) {
+        const lum = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
+        sum += lum;
+        sumSq += lum * lum;
+      }
+      const mean = sum / count;
+      const stdDev = Math.sqrt(Math.max(0, sumSq / count - mean * mean));
+
+      const warnings = [];
+      if (minDim < 700 || maxDim < 1000) warnings.push(`Resolução baixa (${img.width}×${img.height}px): pode reduzir a precisão do OCR.`);
+      if (mean < 75) warnings.push('Imagem escura: aumente o brilho antes do OCR.');
+      else if (mean > 235) warnings.push('Imagem muito clara: traços finos podem ficar apagados.');
+      if (stdDev < 32) warnings.push('Baixo contraste: clique em "Otimizar p/ OCR".');
+
+      if (warnings.length > 0) {
+        diagBox.className = 'alert alert-warn';
+        diagBox.innerHTML = `<strong>Alerta de Qualidade:</strong><ul style="margin:0.35rem 0 0 1.2rem;">${warnings.map(w => `<li>${w}</li>`).join('')}</ul>`;
+      } else {
+        diagBox.className = 'alert alert-success';
+        diagBox.innerHTML = `<strong>Qualidade Adequada:</strong> Resolução (${img.width}×${img.height}px) e contraste bons para OCR.`;
+      }
+    },
+
+    autoEnhance() {
+      state.image.brightness = 112;
+      state.image.contrast = 148;
+      state.image.grayscale = true;
+      document.getElementById('rngBrightness').value = 112;
+      document.getElementById('rngContrast').value = 148;
+      document.getElementById('valBrightness').textContent = '112%';
+      document.getElementById('valContrast').textContent = '148%';
+      document.getElementById('chkGrayscale').checked = true;
+      this.renderCanvas();
+      UI.toast('Contraste e escala de cinza otimizados.');
+    }
+  };
+
+  /* --------------------------------------------------------------------------
+     3. OCR MODULE (TESSERACT.JS PORTUGUÊS)
+     -------------------------------------------------------------------------- */
+  const OcrModule = {
+    async run() {
+      if (!state.image.loaded) {
+        UI.toast('Envie uma imagem antes de executar o OCR.', 'danger');
+        return;
+      }
+      if (typeof Tesseract === 'undefined') {
+        UI.toast('Biblioteca Tesseract.js indisponível. Verifique sua internet ou digite o texto na Etapa 2.', 'danger');
+        return;
+      }
+
+      const btn = document.getElementById('btnRunOcr');
+      const progBox = document.getElementById('ocrProgressBox');
+      const progBar = document.getElementById('ocrProgressBar');
+      const statusTxt = document.getElementById('ocrStatusText');
+      const pctTxt = document.getElementById('ocrPercentText');
+      const confBox = document.getElementById('ocrConfidenceBox');
+
+      btn.disabled = true;
+      progBox.style.display = 'block';
+      confBox.style.display = 'none';
+      progBar.style.width = '5%';
+      statusTxt.textContent = 'Carregando modelo de idioma Português (por)...';
+      pctTxt.textContent = '5%';
+
+      try {
+        const canvas = document.getElementById('imageCanvas');
+        const worker = await Tesseract.createWorker('por', 1, {
+          logger: (m) => {
+            if (m.status === 'recognizing text') {
+              const pct = Math.round((m.progress || 0) * 100);
+              progBar.style.width = pct + '%';
+              pctTxt.textContent = pct + '%';
+              statusTxt.textContent = 'Reconhecendo caracteres manuscritos...';
+            } else if (m.status) {
+              statusTxt.textContent = `Preparando OCR: ${m.status}...`;
+            }
+          }
+        });
+
+        const result = await worker.recognize(canvas);
+        await worker.terminate();
+
+        const data = result.data || {};
+        const meanConf = Math.round(data.confidence || 0);
+        const processedText = this.buildFaithfulTranscript(data);
+
+        state.current.transcricaoOriginal = processedText;
+        state.current.ocrConfiancaMedia = meanConf;
+        state.current.transcricaoConfirmada = processedText;
+
+        document.getElementById('ocrPreviewBox').value = processedText;
+        document.getElementById('boxTranscricaoOriginal').textContent = processedText || '[Nenhum texto reconhecido]';
+        document.getElementById('txtTranscricaoConfirmada').value = processedText;
+        UI.updateWordCount();
+
+        confBox.style.display = 'block';
+        if (!processedText.trim()) {
+          confBox.className = 'alert alert-danger';
+          confBox.innerHTML = '<strong>Imagem Ilegível ou Sem Texto:</strong> Ajuste brilho/contraste, gire a imagem ou digite o texto na Etapa 2.';
+        } else if (meanConf < 60) {
+          confBox.className = 'alert alert-warn';
+          confBox.innerHTML = `<strong>Confiabilidade Baixa (${meanConf}%):</strong> Trechos duvidosos foram marcados como <code>[TRECHO ILEGÍVEL]</code>. Revise na Etapa 2.`;
+        } else {
+          confBox.className = 'alert alert-success';
+          confBox.innerHTML = `<strong>OCR Concluído (Confiabilidade: ${meanConf}%):</strong> Avance para a Etapa 2 para conferir e corrigir automaticamente.`;
+        }
+        UI.toast('Transcrição OCR finalizada!');
+      } catch (err) {
+        confBox.style.display = 'block';
+        confBox.className = 'alert alert-danger';
+        confBox.innerHTML = `<strong>Falha no OCR:</strong> ${err.message || 'Erro inesperado.'}`;
+      } finally {
+        btn.disabled = false;
+      }
+    },
+
+    buildFaithfulTranscript(data) {
+      if (data.paragraphs && data.paragraphs.length > 0) {
+        const paras = data.paragraphs.map(p => {
+          if (!p.lines) return (p.text || '').trim();
+          const lineTexts = p.lines.map(line => {
+            if (!line.words || line.words.length === 0) return (line.text || '').trim();
+            const tokens = [];
+            line.words.forEach(w => {
+              const clean = (w.text || '').trim();
+              if (!clean) return;
+              if (typeof w.confidence === 'number' && w.confidence < 32) {
+                if (tokens[tokens.length - 1] !== '[TRECHO ILEGÍVEL]') tokens.push('[TRECHO ILEGÍVEL]');
+              } else {
+                tokens.push(clean);
+              }
+            });
+            return tokens.join(' ');
+          }).filter(Boolean);
+          return lineTexts.join(' ');
+        }).filter(Boolean);
+        return paras.join('\n\n');
+      }
+      return (data.text || '').trim();
+    }
+  };
+
+  /* --------------------------------------------------------------------------
+     4. MOTOR DE CORREÇÃO AUTOMÁTICA HÍBRIDO (BuiltInCorrectionEngine)
+     Executa análise gramatical, ortográfica, estrutural, coesiva e temática
+     imediatamente no navegador (+ LanguageTool pt-BR quando online).
+     -------------------------------------------------------------------------- */
+  const BuiltInCorrectionEngine = {
+    // Regras ortográficas e gramaticais frequentes em redações escolares brasileiras
+    GRAMMAR_RULES: [
+      {
+        regex: /\bconcerteza\b/gi,
+        correta: 'com certeza',
+        categoria: '1. Erros ortográficos',
+        natureza: 'Erro efetivo',
+        explicacao: 'A locução adverbial "com certeza" escreve-se sempre separada (duas palavras).',
+        sugestao: 'Evite aglutinar locuções adverbiais de uso frequente.'
+      },
+      {
+        regex: /\bderrepente\b/gi,
+        correta: 'de repente',
+        categoria: '1. Erros ortográficos',
+        natureza: 'Erro efetivo',
+        explicacao: 'A expressão "de repente" é grafada separadamente, com apenas um "r".',
+        sugestao: 'Lembre-se da preposição "de" seguida do substantivo "repente".'
+      },
+      {
+        regex: /\bmenas\b/gi,
+        correta: 'menos',
+        categoria: '4. Erros de concordância',
+        natureza: 'Erro efetivo',
+        explicacao: 'O advérbio/pronome indefinido "menos" é invariável; não existe flexão feminina "menas".',
+        sugestao: 'Use sempre "menos" independentemente do gênero do substantivo.'
+      },
+      {
+        regex: /\bseje\b/gi,
+        correta: 'seja',
+        categoria: '5. Erros de regência',
+        natureza: 'Erro efetivo',
+        explicacao: 'A conjugação correta do verbo "ser" no presente do subjuntivo é "seja".',
+        sugestao: 'Revise as formas do presente do subjuntivo dos verbos irregulares.'
+      },
+      {
+        regex: /\besteje\b/gi,
+        correta: 'esteja',
+        categoria: '5. Erros de regência',
+        natureza: 'Erro efetivo',
+        explicacao: 'A forma culta do verbo "estar" no presente do subjuntivo é "esteja".',
+        sugestao: 'Evite marcas de oralidade informal na conjugação verbal.'
+      },
+      {
+        regex: /\bpra\s+mim\s+(fazer|escrever|estudar|ir|ver|ter|ser|dizer|saber|entender|resolver|combater|ajudar)\b/gi,
+        correta: (m, verb) => `para eu ${verb}`,
+        categoria: '5. Erros de regência',
+        natureza: 'Erro efetivo',
+        explicacao: 'Antes de verbo no infinitivo que indica ação praticada pelo sujeito, utiliza-se o pronome reto "eu" e não "mim".',
+        sugestao: 'Teste substituindo por "para eu + verbo": "mim" não conjuga verbo.'
+      },
+      {
+        regex: /\bhouveram\s+(muitos|muitas|vários|várias|problemas|casos|mudanças|avanços|conflitos)\b/gi,
+        correta: (m, subst) => `houve ${subst}`,
+        categoria: '4. Erros de concordância',
+        natureza: 'Erro efetivo',
+        explicacao: 'O verbo "haver" no sentido de "existir" ou "ocorrer" é impessoal e permanece sempre na 3ª pessoa do singular ("houve").',
+        sugestao: 'Sempre que puder substituir "haver" por "existir", mantenha-o no singular.'
+      },
+      {
+        regex: /\bfazem\s+(\d+|dois|duas|três|quatro|cinco|dez|vinte|muitos|várias)\s+(anos|meses|dias|séculos|décadas)\b/gi,
+        correta: (m, qtd, tempo) => `faz ${qtd} ${tempo}`,
+        categoria: '4. Erros de concordância',
+        natureza: 'Erro efetivo',
+        explicacao: 'O verbo "fazer" indicando tempo decorrido é impessoal e deve ficar no singular ("faz").',
+        sugestao: 'Verbos que indicam tempo decorrido não vão para o plural.'
+      },
+      {
+        regex: /\ba\s+nível\s+de\b/gi,
+        correta: 'em nível de / no âmbito de',
+        categoria: '10. Inadequações vocabulares',
+        natureza: 'Inadequação gramatical',
+        explicacao: 'Na norma-padrão, recomenda-se "em nível de" (quando há hierarquia) ou "no âmbito de / quanto a".',
+        sugestao: 'Prefira preposições precisas na escrita formal.'
+      },
+      {
+        regex: /\bexcessão\b/gi,
+        correta: 'exceção',
+        categoria: '1. Erros ortográficos',
+        natureza: 'Erro efetivo',
+        explicacao: 'Grafia oficial com "c" e "ç": exceção.',
+        sugestao: 'Associe à palavra "exceto".'
+      },
+      {
+        regex: /\bprevilégio\b/gi,
+        correta: 'privilégio',
+        categoria: '1. Erros ortográficos',
+        natureza: 'Erro efetivo',
+        explicacao: 'A vogal inicial correta é "i": privilégio.',
+        sugestao: 'Consulte a grafia padrão de palavras derivadas de "privado".'
+      },
+      {
+        regex: /\bbeneficiente\b/gi,
+        correta: 'beneficente',
+        categoria: '1. Erros ortográficos',
+        natureza: 'Erro efetivo',
+        explicacao: 'A palavra "beneficente" não possui a letra "i" após o "c".',
+        sugestao: 'Atenção à pronúncia e escrita de termos formais.'
+      },
+      {
+        regex: /\banalisar\b/gi,
+        correta: 'analisar',
+        skip: true
+      },
+      {
+        regex: /\banalizar\b/gi,
+        correta: 'analisar',
+        categoria: '1. Erros ortográficos',
+        natureza: 'Erro efetivo',
+        explicacao: 'Derivado de "análise" (com "s"), o verbo grafa-se "analisar".',
+        sugestao: 'Palavras derivadas de radicais com "s" mantêm o "s".'
+      },
+      {
+        regex: /\bparalizar\b/gi,
+        correta: 'paralisar',
+        categoria: '1. Erros ortográficos',
+        natureza: 'Erro efetivo',
+        explicacao: 'Derivado de "paralisia", escreve-se com "s": paralisar.',
+        sugestao: 'Verifique o radical da palavra primitiva.'
+      },
+      {
+        regex: /\btras\b(?=\s+(consequências|benefícios|problemas|impactos|mudanças|resultados|efeitos))/gi,
+        correta: 'traz',
+        categoria: '1. Erros ortográficos',
+        natureza: 'Erro efetivo',
+        explicacao: 'Forma conjugada do verbo "trazer" na 3ª pessoa do singular grafa-se com "z" ("traz").',
+        sugestao: 'Diferencie "traz" (verbo trazer) de "trás" (advérbio de lugar).'
+      },
+      {
+        regex: /\bpor\s+isso\s+que\b/gi,
+        correta: 'por isso',
+        categoria: '6. Problemas de coesão',
+        natureza: 'Inadequação gramatical',
+        explicacao: 'O conectivo conclusivo/explicativo na norma escrita dispensa o "que" expletivo ("por isso").',
+        sugestao: 'Use "por isso," seguido de vírgula para maior concisão.'
+      },
+      {
+        regex: /\bnao\b/g,
+        correta: 'não',
+        categoria: '2. Erros de acentuação',
+        natureza: 'Erro efetivo',
+        explicacao: 'Falta o til (~) sobre o "a" em "não".',
+        sugestao: 'Revise a acentuação gráfica e sinais diacríticos após a transcrição.'
+      },
+      {
+        regex: /\btambem\b/gi,
+        correta: 'também',
+        categoria: '2. Erros de acentuação',
+        natureza: 'Erro efetivo',
+        explicacao: 'Oxítona terminada em "-em" recebe acento agudo: também.',
+        sugestao: 'Oxítonas terminadas em A, E, O, EM/ENS são sempre acentuadas.'
+      },
+      {
+        regex: /\bso\b(?=\s+(que|assim|pode|deve|existe|há|tem))/gi,
+        correta: 'só',
+        categoria: '2. Erros de acentuação',
+        natureza: 'Erro efetivo',
+        explicacao: 'Monossílabo tônico terminado em "o" recebe acento agudo ("só").',
+        sugestao: 'Diferencie "só" (apenas/sozinho) de "so" (arcaico).'
+      },
+      {
+        regex: /\bpaís\b/gi,
+        correta: 'país',
+        skip: true
+      },
+      {
+        regex: /\bpais\b(?=\s+(desenvolvido|subdesenvolvido|enfrenta|precisa|vive|sofre|brasileiro|inteiro))/gi,
+        correta: 'país',
+        categoria: '2. Erros de acentuação',
+        natureza: 'Erro efetivo',
+        explicacao: 'Hiato tônico "í" sozinho na sílaba recebe acento agudo: país (nação).',
+        sugestao: 'Sem acento, "pais" refere-se aos genitores.'
+      },
+      {
+        regex: /\bpublico\b(?=\s+(alvo|brasileiro|geral|em\s+geral))/gi,
+        correta: 'público',
+        categoria: '2. Erros de acentuação',
+        natureza: 'Erro efetivo',
+        explicacao: 'Todas as palavras proparoxítonas são acentuadas: público.',
+        sugestao: 'Identifique a sílaba tônica; se for a antepenúltima, acentue.'
+      },
+      {
+        regex: /\bsociedade\s+onde\b/gi,
+        correta: 'sociedade em que / na qual',
+        categoria: '6. Problemas de coesão',
+        natureza: 'Inadequação gramatical',
+        explicacao: 'O pronome relativo "onde" deve retomar exclusivamente lugar físico. Para conceitos abstratos como "sociedade", utilize "em que" ou "na qual".',
+        sugestao: 'Reserve "onde" apenas para espaços físicos concretos.'
+      },
+      {
+        regex: /\bsituação\s+onde\b/gi,
+        correta: 'situação em que / na qual',
+        categoria: '6. Problemas de coesão',
+        natureza: 'Inadequação gramatical',
+        explicacao: 'O pronome "onde" exige antecedente de lugar físico; para "situação", empregue "em que" ou "na qual".',
+        sugestao: 'Substitua "onde" por "em que" ao retomar ideias ou situações.'
+      }
+    ],
+
+    COHESIVE_CONNECTORS: [
+      'portanto', 'contudo', 'entretanto', 'todavia', 'no entanto', 'além disso',
+      'ademais', 'outrossim', 'nesse sentido', 'sob essa ótica', 'dessa forma',
+      'desse modo', 'assim', 'logo', 'pois', 'visto que', 'uma vez que', 'conforme',
+      'segundo', 'em primeiro lugar', 'em segundo plano', 'por outro lado', 'em suma',
+      'diante disso', 'consequentemente', 'embora', 'apesar de'
+    ],
+
+    STOPWORDS: new Set([
+      'de','a','o','que','e','do','da','em','um','para','é','com','não','uma','os','no','se','na','por','mais','as','dos','como','mas','foi','ao','ele','das','tem','à','seu','sua','ou','ser','quando','muito','há','nos','já','está','eu','também','só','pelo','pela','até','isso','ela','entre','era','depois','sem','mesmo','aos','ter','seus','quem','nas','me','esse','eles','estão','você','tinha','foram','essa','num','nem','suas','meu','às','minha','têm','numa','pelos','elas','havia','seja','qual','será','nós','tenho','lhe','deles','essas','esses','pelas','este','fosse','dele','tu','te','vocês','vos','lhes','meus','minhas','teu','tua','teus','tuas','nosso','nossa','nossos','nossas','dela','delas','esta','estes','estas','aquele','aquela','aqueles','aquelas','isto','aquilo'
+    ]),
+
+    async runHybridAnalysis(evalData) {
+      const text = evalData.transcricaoConfirmada.trim();
+      const paragraphs = text.split(/\n+/).map(p => p.trim()).filter(Boolean);
+      const words = text.split(/\s+/).filter(Boolean);
+      const wordCount = words.length;
+      const sentences = text.split(/[.!?]+/).map(s => s.trim()).filter(Boolean);
+
+      const errosEncontrados = [];
+      let correctedText = text;
+
+      // 1. Aplicar regras gramaticais/ortográficas locais
+      this.GRAMMAR_RULES.forEach(rule => {
+        if (rule.skip) return;
+        let match;
+        const rx = new RegExp(rule.regex.source, rule.regex.flags);
+        while ((match = rx.exec(text)) !== null) {
+          const orig = match[0];
+          const corr = typeof rule.correta === 'function' ? rule.correta(...match) : rule.correta;
+          if (orig.toLowerCase() !== corr.toLowerCase()) {
+            errosEncontrados.push({
+              categoria: rule.categoria,
+              natureza: rule.natureza,
+              trechoOriginal: orig,
+              formaCorreta: corr,
+              explicacao: rule.explicacao,
+              justificativa: 'Desvio identificado na análise normativa do texto.',
+              sugestaoPedagogica: rule.sugestao
+            });
+          }
+        }
+        correctedText = correctedText.replace(rule.regex, (...args) => {
+          const full = args[0];
+          const replacement = typeof rule.correta === 'function' ? rule.correta(...args) : rule.correta;
+          // Preserva capitalização inicial se a palavra original começava com maiúscula
+          if (full[0] && full[0] === full[0].toUpperCase() && full[0] !== full[0].toLowerCase()) {
+            return replacement.charAt(0).toUpperCase() + replacement.slice(1);
+          }
+          return replacement;
+        });
+      });
+
+      // 2. Verificar pontuação e capitalização básica na reescrita
+      // Espaço antes de vírgula/ponto e ausência de espaço após pontuação
+      if (/\s+[,.;:!?]/.test(text)) {
+        errosEncontrados.push({
+          categoria: '3. Erros de pontuação',
+          natureza: 'Erro efetivo',
+          trechoOriginal: 'Espaço antes de sinal de pontuação',
+          formaCorreta: 'Sinal de pontuação colado à palavra anterior',
+          explicacao: 'Na escrita formal, sinais como vírgula e ponto final não são precedidos de espaço.',
+          justificativa: 'Ajuste de convenção tipográfica e pontuação.',
+          sugestaoPedagogica: 'Coloque a vírgula imediatamente após a última letra da palavra.'
+        });
+        correctedText = correctedText.replace(/\s+([,.;:!?])/g, '$1');
+      }
+
+      // 3. Consulta complementar à API pública LanguageTool (pt-BR) se houver internet
+      if (navigator.onLine) {
+        try {
+          const params = new URLSearchParams();
+          params.append('text', correctedText);
+          params.append('language', 'pt-BR');
+          const ltResp = await fetch('https://api.languagetool.org/v2/check', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: params.toString()
+          });
+          if (ltResp.ok) {
+            const ltData = await ltResp.json();
+            const matches = (ltData.matches || []).slice(0, 15);
+            // Aplicar substituições de trás para frente para não deslocar índices
+            const sortedMatches = [...matches].sort((a, b) => b.offset - a.offset);
+            sortedMatches.forEach(m => {
+              if (!m.replacements || m.replacements.length === 0) return;
+              const bestRep = m.replacements[0].value;
+              const origSlice = correctedText.slice(m.offset, m.offset + m.length);
+              if (!origSlice || origSlice === bestRep) return;
+              // Evita duplicar se já foi detectado pelas regras locais
+              const alreadyLogged = errosEncontrados.some(e => e.trechoOriginal.toLowerCase() === origSlice.toLowerCase());
+              if (!alreadyLogged) {
+                const catMap = {
+                  TYPOS: '1. Erros ortográficos',
+                  GRAMMAR: '4. Erros de concordância',
+                  PUNCTUATION: '3. Erros de pontuação',
+                  CASING: '1. Erros ortográficos',
+                  STYLE: '10. Inadequações vocabulares'
+                };
+                const issueType = (m.rule && m.rule.category && m.rule.category.id) || 'GRAMMAR';
+                errosEncontrados.push({
+                  categoria: catMap[issueType] || '4. Erros de concordância',
+                  natureza: issueType === 'STYLE' ? 'Sugestão de melhoria estilística' : 'Erro efetivo',
+                  trechoOriginal: origSlice,
+                  formaCorreta: bestRep,
+                  explicacao: m.message || 'Inadequação linguística identificada.',
+                  justificativa: 'Verificação gramatical automatizada (pt-BR).',
+                  sugestaoPedagogica: m.shortMessage || 'Revise a construção conforme a norma-padrão.'
+                });
+              }
+              correctedText = correctedText.slice(0, m.offset) + bestRep + correctedText.slice(m.offset + m.length);
+            });
+          }
+        } catch (e) {
+          console.warn('LanguageTool indisponível, seguindo com análise local:', e);
+        }
+      }
+
+      // Garante letra maiúscula no início de cada parágrafo e após ponto final
+      correctedText = correctedText
+        .split('\n')
+        .map(line => {
+          const trimmed = line.trim();
+          if (!trimmed) return '';
+          let fixed = trimmed.charAt(0).toUpperCase() + trimmed.slice(1);
+          fixed = fixed.replace(/([.!?]\s+)([a-záéíóúâêôãõç])/g, (_, sep, ch) => sep + ch.toUpperCase());
+          return fixed;
+        })
+        .join('\n');
+
+      // 4. Análise de Coesão (Conectivos e Repetições)
+      const lowerText = text.toLowerCase();
+      const usedConnectors = this.COHESIVE_CONNECTORS.filter(conn => {
+        const rx = new RegExp(`\\b${conn.replace(/\s+/g, '\\s+')}\\b`, 'i');
+        return rx.test(lowerText);
+      });
+
+      const freqMap = {};
+      words.forEach(w => {
+        const clean = w.toLowerCase().replace(/[^a-záéíóúâêôãõç]/g, '');
+        if (clean.length >= 5 && !this.STOPWORDS.has(clean)) {
+          freqMap[clean] = (freqMap[clean] || 0) + 1;
+        }
+      });
+      const repeatedWords = Object.entries(freqMap)
+        .filter(([, count]) => count >= Math.max(4, Math.ceil(wordCount / 45)))
+        .map(([w, count]) => `"${w}" (${count}x)`);
+
+      if (repeatedWords.length > 0) {
+        errosEncontrados.push({
+          categoria: '6. Problemas de coesão',
+          natureza: 'Sugestão de melhoria estilística',
+          trechoOriginal: repeatedWords.slice(0, 3).join(', '),
+          formaCorreta: 'Substituição por sinônimos ou pronomes referenciais',
+          explicacao: 'Repetição lexical elevada ao longo dos parágrafos.',
+          justificativa: 'A repetição excessiva empobrece a progressão referencial.',
+          sugestaoPedagogica: 'Utilize hiperônimos, sinônimos ou pronomes demonstrativos para retomar termos já citados.'
+        });
+      }
+
+      // 5. Cálculo Fundamentado dos 5 Critérios (Total: 10,0 pontos)
+      // Critério 1: Adequação ao Tema (Máx 2,0)
+      let c1 = 1.4;
+      let j1 = '';
+      if (evalData.tema) {
+        const themeKeywords = evalData.tema
+          .toLowerCase()
+          .split(/\s+/)
+          .map(w => w.replace(/[^a-záéíóúâêôãõç]/g, ''))
+          .filter(w => w.length >= 4 && !this.STOPWORDS.has(w));
+        const matchedKw = themeKeywords.filter(kw => lowerText.includes(kw));
+        const ratio = themeKeywords.length > 0 ? matchedKw.length / themeKeywords.length : 0.7;
+
+        if (wordCount < 45) {
+          c1 = 0.7;
+          j1 = `Texto muito breve (${wordCount} palavras), limitando o desenvolvimento da proposta "${evalData.tema}".`;
+        } else if (ratio >= 0.6) {
+          c1 = 1.8;
+          j1 = `Aborda diretamente o tema "${evalData.tema}", mobilizando conceitos centrais da proposta (${matchedKw.join(', ')}) adequados ao gênero ${evalData.genero}.`;
+        } else if (ratio >= 0.25) {
+          c1 = 1.3;
+          j1 = `Tangencia o tema "${evalData.tema}", porém poderia aprofundar mais o recorte temático exigido.`;
+        } else {
+          c1 = 0.6;
+          j1 = `Baixa presença dos elementos-chave do tema "${evalData.tema}", indicando risco de fuga parcial.`;
+        }
+      } else {
+        c1 = wordCount >= 80 ? 1.6 : 1.0;
+        j1 = `Tema não informado no cadastro; avaliada a pertinência interna e adequação ao gênero ${evalData.genero}.`;
+      }
+
+      // Critério 2: Estrutura e Organização Textual (Máx 2,0)
+      let c2 = 1.0;
+      let j2 = '';
+      const isDissertative = evalData.genero.toLowerCase().includes('dissertativo') || evalData.genero.toLowerCase().includes('artigo');
+      if (isDissertative) {
+        if (paragraphs.length >= 4 && wordCount >= 120) {
+          c2 = 1.8;
+          j2 = `Apresenta ${paragraphs.length} parágrafos bem distribuídos, contemplando introdução, desenvolvimento e conclusão compatíveis com o gênero ${evalData.genero}.`;
+        } else if (paragraphs.length === 3 && wordCount >= 80) {
+          c2 = 1.5;
+          j2 = `Estrutura tripartite (${paragraphs.length} parágrafos), com divisão funcional entre apresentação, argumentação e fechamento.`;
+        } else if (paragraphs.length <= 1) {
+          c2 = 0.6;
+          j2 = `Texto em bloco único (${paragraphs.length} parágrafo), prejudicando a segmentação entre introdução, desenvolvimento e conclusão.`;
+          errosEncontrados.push({
+            categoria: '8. Problemas de estrutura textual',
+            natureza: 'Problema de construção textual',
+            trechoOriginal: 'Parágrafo único',
+            formaCorreta: 'Divisão em 3 a 4 parágrafos estruturados',
+            explicacao: `O gênero ${evalData.genero} exige divisão clara em introdução, desenvolvimento e conclusão.`,
+            justificativa: 'Ausência de paragrafação.',
+            sugestaoPedagogica: 'Organize cada ideia principal em um parágrafo distinto.'
+          });
+        } else {
+          c2 = 1.2;
+          j2 = `Possui ${paragraphs.length} parágrafos, demandando maior equilíbrio na extensão do desenvolvimento ou conclusão.`;
+        }
+      } else {
+        c2 = paragraphs.length >= 2 ? 1.6 : 1.0;
+        j2 = `Organização estrutural avaliada conforme as características do gênero ${evalData.genero} (${paragraphs.length} parágrafo(s)).`;
+      }
+
+      // Critério 3: Argumentação e Coerência (Máx 2,0)
+      let c3 = 1.0;
+      let j3 = '';
+      const argMarkers = ['porque', 'pois', 'visto que', 'já que', 'portanto', 'exemplo', 'dados', 'pesquisa', 'segundo', 'conforme', 'causa', 'consequência', 'sociedade', 'estado', 'governo', 'educação'];
+      const foundArg = argMarkers.filter(m => lowerText.includes(m));
+      if (wordCount < 50) {
+        c3 = 0.6;
+        j3 = `Extensão insuficiente (${wordCount} palavras) para sustentar pontos de vista e fundamentar argumentos com consistência.`;
+      } else if (foundArg.length >= 4 && sentences.length >= 5) {
+        c3 = 1.7;
+        j3 = `Apresenta encadeamento lógico entre as ideias (${sentences.length} períodos) e mobiliza marcas de justificativa e fundamentação.`;
+      } else if (foundArg.length >= 2) {
+        c3 = 1.3;
+        j3 = `Ideias compreensíveis e coerentes, mas os argumentos podem ser mais aprofundados com exemplos ou repertório sociocultural.`;
+      } else {
+        c3 = 0.9;
+        j3 = `Predomínio de afirmações expositivas com pouca fundamentação argumentativa.`;
+      }
+
+      // Critério 4: Coesão Textual (Máx 1,5)
+      let c4 = 0.8;
+      let j4 = '';
+      if (usedConnectors.length >= 4 && repeatedWords.length === 0) {
+        c4 = 1.4;
+        j4 = `Bom repertório de operadores argumentativos e conectivos (${usedConnectors.slice(0, 5).join(', ')}), garantindo fluidez entre períodos e parágrafos.`;
+      } else if (usedConnectors.length >= 2) {
+        c4 = 1.1;
+        j4 = `Emprega conectivos básicos (${usedConnectors.join(', ')}), com espaço para diversificar os elementos de ligação interparágrafos.`;
+      } else {
+        c4 = 0.6;
+        j4 = `Uso restrito de conectivos explícitos; recomenda-se articular melhor as frases e o início dos parágrafos.`;
+      }
+
+      // Critério 5: Domínio da Norma-Padrão (Máx 2,5)
+      const effectiveErrorsCount = errosEncontrados.filter(e => e.natureza !== 'Sugestão de melhoria estilística').length;
+      const penalty = Math.min(2.0, effectiveErrorsCount * 0.25);
+      let c5 = Math.max(0.5, Math.round((2.5 - penalty) * 10) / 10);
+      let j5 = '';
+      if (effectiveErrorsCount === 0) {
+        j5 = `Não foram detectados desvios ortográficos ou gramaticais evidentes na triagem automática; registro adequado à norma-padrão.`;
+      } else {
+        j5 = `Identificado(s) ${effectiveErrorsCount} desvio(s) de norma-padrão (ortografia, acentuação, pontuação ou concordância), detalhado(s) no quadro de ocorrências.`;
+      }
+
+      const round1 = (v) => Math.round(v * 10) / 10;
+      c1 = round1(c1);
+      c2 = round1(c2);
+      c3 = round1(c3);
+      c4 = round1(c4);
+      c5 = round1(c5);
+
+      const total = round1(c1 + c2 + c3 + c4 + c5);
+      const cls = EvaluationModule.getClassification(total);
+
+      const comentarioGeral = `A redação alcançou ${total.toFixed(1).replace('.', ',')} pontos (desempenho: ${cls.label}). O texto possui ${wordCount} palavras distribuídas em ${paragraphs.length} parágrafo(s). A avaliação considerou a adequação à proposta, a organização estrutural, a progressão argumentativa, os mecanismos de coesão e o domínio da norma-padrão da Língua Portuguesa. (Nota sujeita à revisão e validação final do professor).`;
+
+      const recs = [];
+      if (effectiveErrorsCount > 0) recs.push('Revisar atentamente os desvios gramaticais e ortográficos apontados no quadro de ocorrências e comparar a versão original com a reescrita sugerida.');
+      if (usedConnectors.length < 3) recs.push('Ampliar o repertório de conectivos (ex.: "além disso", "nesse sentido", "portanto", "contudo") para articular melhor os parágrafos.');
+      if (paragraphs.length < 3 && isDissertative) recs.push('Estruturar o texto em parágrafos distintos de introdução, desenvolvimento e conclusão.');
+      if (recs.length === 0) recs.push('Manter a prática constante de leitura crítica e produção textual, buscando aprofundar o repertório sociocultural.');
+
+      return {
+        criterios: {
+          c1: { nota: c1, justificativa: j1 },
+          c2: { nota: c2, justificativa: j2 },
+          c3: { nota: c3, justificativa: j3 },
+          c4: { nota: c4, justificativa: j4 },
+          c5: { nota: c5, justificativa: j5 }
+        },
+        erros: errosEncontrados,
+        redacaoCorrigida: correctedText,
+        comentarioGeral,
+        recomendacoes: recs.join('\n')
+      };
+    }
+  };
+
+  /* --------------------------------------------------------------------------
+     5. EVALUATION MODULE (CÁLCULO, CLASSIFICAÇÃO E DIFF)
+     -------------------------------------------------------------------------- */
+  const EvaluationModule = {
+    getClassification(total) {
+      if (total <= 3.9) {
+        return {
+          label: 'Insuficiente',
+          badgeClass: 'badge-red',
+          desc: '0,0 a 3,9 — Insuficiente: O texto apresenta dificuldades severas de atendimento à proposta, estruturação ou domínio linguístico, demandando intervenção pedagógica intensiva.'
+        };
+      }
+      if (total <= 5.9) {
+        return {
+          label: 'Em desenvolvimento',
+          badgeClass: 'badge-amber',
+          desc: '4,0 a 5,9 — Em desenvolvimento: O estudante demonstra compreensão parcial da proposta e da estrutura textual, mas necessita consolidar argumentação, coesão e norma-padrão.'
+        };
+      }
+      if (total <= 7.9) {
+        return {
+          label: 'Bom',
+          badgeClass: 'badge-blue',
+          desc: '6,0 a 7,9 — Bom: Redação bem estruturada, com atendimento adequado ao tema e boa progressão de ideias, apresentando desvios pontuais passíveis de aprimoramento.'
+        };
+      }
+      if (total <= 9.0) {
+        return {
+          label: 'Muito bom',
+          badgeClass: 'badge-teal',
+          desc: '8,0 a 9,0 — Muito bom: Domínio consistente do gênero textual, argumentação bem fundamentada, coesão eficiente e bom controle da norma-padrão.'
+        };
+      }
+      return {
+        label: 'Excelente',
+        badgeClass: 'badge-green',
+        desc: 'Acima de 9,0 até 10,0 — Excelente: Desempenho exemplar em todos os critérios avaliados, com articulação madura, repertório pertinente e precisão linguística.'
+      };
+    },
+
+    recalculateScores() {
+      const ids = ['scoreC1', 'scoreC2', 'scoreC3', 'scoreC4', 'scoreC5'];
+      let sum = 0;
+
+      ids.forEach((id, idx) => {
+        const inp = document.getElementById(id);
+        const max = parseFloat(inp.dataset.max);
+        let val = parseFloat(inp.value);
+        if (isNaN(val) || val < 0) val = 0;
+        if (val > max) {
+          val = max;
+          inp.value = max;
+          UI.toast(`A nota do Critério ${idx + 1} não pode ultrapassar ${max.toFixed(1).replace('.', ',')} pontos.`, 'warn');
+        }
+        sum += val;
+      });
+
+      const finalTotal = Math.round(sum * 10) / 10;
+      const cls = this.getClassification(finalTotal);
+
+      document.getElementById('lblNotaFinal').textContent = `${finalTotal.toFixed(1).replace('.', ',')} / 10,0`;
+      const badge = document.getElementById('badgeClassificacao');
+      badge.textContent = cls.label;
+      badge.className = `badge ${cls.badgeClass}`;
+      document.getElementById('txtExplicacaoClassificacao').textContent = cls.desc;
+
+      return { finalTotal, classification: cls };
+    },
+
+    computeWordDiff(origText, corrText) {
+      if (!origText.trim() || !corrText.trim()) {
+        return 'Execute a correção automática para visualizar as alterações destacadas.';
+      }
+      const origWords = origText.trim().split(/\s+/);
+      const corrWords = corrText.trim().split(/\s+/);
+      const m = origWords.length;
+      const n = corrWords.length;
+      if (m * n > 250000) return this.escapeHtml(corrText);
+
+      const dp = Array.from({ length: m + 1 }, () => new Uint16Array(n + 1));
+      for (let i = m - 1; i >= 0; i--) {
+        for (let j = n - 1; j >= 0; j--) {
+          if (origWords[i] === corrWords[j]) dp[i][j] = 1 + dp[i + 1][j + 1];
+          else dp[i][j] = Math.max(dp[i + 1][j], dp[i][j + 1]);
+        }
+      }
+
+      const parts = [];
+      let i = 0, j = 0;
+      while (i < m && j < n) {
+        if (origWords[i] === corrWords[j]) {
+          parts.push(this.escapeHtml(origWords[i]));
+          i++; j++;
+        } else if (dp[i + 1][j] >= dp[i][j + 1]) {
+          parts.push(`<span class="diff-del">${this.escapeHtml(origWords[i])}</span>`);
+          i++;
+        } else {
+          parts.push(`<span class="diff-ins">${this.escapeHtml(corrWords[j])}</span>`);
+          j++;
+        }
+      }
+      while (i < m) parts.push(`<span class="diff-del">${this.escapeHtml(origWords[i++])}</span>`);
+      while (j < n) parts.push(`<span class="diff-ins">${this.escapeHtml(corrWords[j++])}</span>`);
+      return parts.join(' ');
+    },
+
+    escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+  };
+
+  /* --------------------------------------------------------------------------
+     6. AI SERVICE MODULE (ORQUESTRA MOTOR HÍBRIDO + APIs EXTERNAS)
+     -------------------------------------------------------------------------- */
+  const AiService = {
+    buildPedagogicalPrompt(evalData) {
+      return `Atue como um professor especialista em Língua Portuguesa e Avaliação Educacional.
+Analise a redação abaixo e retorne EXCLUSIVAMENTE um objeto JSON válido (sem blocos markdown) com a estrutura exata:
+{
+  "criterios": {
+    "c1": {"nota": 0.0, "justificativa": "..."},
+    "c2": {"nota": 0.0, "justificativa": "..."},
+    "c3": {"nota": 0.0, "justificativa": "..."},
+    "c4": {"nota": 0.0, "justificativa": "..."},
+    "c5": {"nota": 0.0, "justificativa": "..."}
+  },
+  "erros": [
+    {
+      "categoria": "1. Erros ortográficos",
+      "natureza": "Erro efetivo",
+      "trechoOriginal": "...",
+      "formaCorreta": "...",
+      "explicacao": "...",
+      "justificativa": "...",
+      "sugestaoPedagogica": "..."
+    }
+  ],
+  "redacaoCorrigida": "...",
+  "comentarioGeral": "...",
+  "recomendacoes": "..."
+}
+
+REGRAS:
+- Limites: c1 máx 2.0; c2 máx 2.0; c3 máx 2.0; c4 máx 1.5; c5 máx 2.5 (Total = 10.0).
+- Nível: ${evalData.nivel} | Gênero: ${evalData.genero} | Tema: ${evalData.tema || 'Não informado'}.
+- Preserve integralmente as ideias originais na "redacaoCorrigida".
+
+REDAÇÃO DO ESTUDANTE:
+"""
+${evalData.transcricaoConfirmada}
+"""`;
+    },
+
+    async analyzeEssay() {
+      UI.syncFormToState();
+
+      if (!state.current.transcricaoConfirmada.trim()) {
+        UI.toast('Insira ou transcreva o texto da redação na Etapa 2 antes de corrigir.', 'warn');
+        UI.switchView('etapa2');
+        return;
+      }
+
+      // Se o professor pulou o botão de confirmar mas já preencheu o texto, confirma automaticamente
+      if (!state.current.transcricaoConfirmadaStatus) {
+        state.current.transcricaoConfirmadaStatus = true;
+      }
+
+      const btn = document.getElementById('btnAnalisarComIA');
+      const loading = document.getElementById('aiLoadingText');
+      btn.disabled = true;
+      loading.style.display = 'inline';
+
+      try {
+        let structuredResult;
+        const mode = state.aiConfig.mode;
+        const sessionToken = sessionStorage.getItem('corrige_redacao_session_token') || '';
+
+        if (mode === 'gemini_direct' && sessionToken) {
+          const model = state.aiConfig.modelName || 'gemini-2.5-flash';
+          const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(sessionToken)}`;
+          const resp = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              contents: [{ parts: [{ text: this.buildPedagogicalPrompt(state.current) }] }],
+              generationConfig: { temperature: 0.2, responseMimeType: 'application/json' }
+            })
+          });
+          if (!resp.ok) throw new Error(`Erro Gemini API (HTTP ${resp.status})`);
+          const data = await resp.json();
+          const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+          structuredResult = JSON.parse(rawText.replace(/^```json\s*/i, '').replace(/```\s*$/, '').trim());
+        } else if ((mode === 'proxy' || mode === 'openai_compatible') && state.aiConfig.endpointUrl) {
+          const headers = { 'Content-Type': 'application/json' };
+          if (mode === 'openai_compatible' && sessionToken) {
+            headers['Authorization'] = `Bearer ${sessionToken}`;
+          }
+          const payload = mode === 'openai_compatible'
+            ? {
+                model: state.aiConfig.modelName || 'gpt-4o-mini',
+                messages: [
+                  { role: 'system', content: 'Você é um corretor pedagógico de redações em Língua Portuguesa. Responda apenas em JSON válido.' },
+                  { role: 'user', content: this.buildPedagogicalPrompt(state.current) }
+                ],
+                temperature: 0.2
+              }
+            : {
+                estudante: state.current.estudante,
+                nivel: state.current.nivel,
+                genero: state.current.genero,
+                tema: state.current.tema,
+                textoConfirmado: state.current.transcricaoConfirmada,
+                promptEstruturado: this.buildPedagogicalPrompt(state.current)
+              };
+
+          const resp = await fetch(state.aiConfig.endpointUrl.trim(), {
+            method: 'POST',
+            headers,
+            body: JSON.stringify(payload)
+          });
+          if (!resp.ok) throw new Error(`Erro no Endpoint (HTTP ${resp.status})`);
+          const raw = await resp.json();
+          if (raw.criterios) structuredResult = raw;
+          else if (raw.choices?.[0]?.message?.content) {
+            const cleaned = raw.choices[0].message.content.replace(/^```json\s*/i, '').replace(/```\s*$/, '').trim();
+            structuredResult = JSON.parse(cleaned);
+          } else {
+            throw new Error('Formato de resposta inválido do endpoint.');
+          }
+        } else {
+          // Executa o Motor Híbrido Integrado automaticamente (sem exigir chave)
+          structuredResult = await BuiltInCorrectionEngine.runHybridAnalysis(state.current);
+        }
+
+        this.applyResult(structuredResult);
+        UI.toast('Correção automática concluída! Revise os critérios e aprove o relatório.');
+      } catch (err) {
+        console.error('Erro na correção automática:', err);
+        UI.toast(`Falha na API externa (${err.message}). Executando motor automático integrado...`, 'warn');
+        const fallback = await BuiltInCorrectionEngine.runHybridAnalysis(state.current);
+        this.applyResult(fallback);
+      } finally {
+        btn.disabled = false;
+        loading.style.display = 'none';
+      }
+    },
+
+    applyResult(data) {
+      const c = data.criterios || {};
+      const clamp = (val, max) => Math.min(max, Math.max(0, Math.round((Number(val) || 0) * 10) / 10));
+
+      state.current.criterios = {
+        c1: { nota: clamp(c.c1?.nota, 2.0), justificativa: c.c1?.justificativa || '' },
+        c2: { nota: clamp(c.c2?.nota, 2.0), justificativa: c.c2?.justificativa || '' },
+        c3: { nota: clamp(c.c3?.nota, 2.0), justificativa: c.c3?.justificativa || '' },
+        c4: { nota: clamp(c.c4?.nota, 1.5), justificativa: c.c4?.justificativa || '' },
+        c5: { nota: clamp(c.c5?.nota, 2.5), justificativa: c.c5?.justificativa || '' }
+      };
+
+      state.current.erros = Array.isArray(data.erros) ? data.erros : [];
+      state.current.redacaoCorrigida = data.redacaoCorrigida || '';
+      state.current.comentarioGeral = data.comentarioGeral || '';
+      state.current.recomendacoes = data.recomendacoes || '';
+      state.current.aprovadaDocente = false;
+
+      UI.syncStateToForm();
+    },
+
+    async testEndpoint() {
+      const mode = document.getElementById('cfgAiMode').value;
+      const resBox = document.getElementById('cfgTestResult');
+      if (mode === 'builtin_hybrid') {
+        resBox.innerHTML = '<span style="color:var(--success);">✔ Motor Híbrido Integrado operacional e pronto para corrigir redações imediatamente.</span>';
+        return;
+      }
+      if (mode === 'gemini_direct') {
+        const key = document.getElementById('cfgSessionToken').value.trim();
+        if (!key) {
+          resBox.innerHTML = '<span style="color:var(--danger);">Cole sua chave API do Google Gemini antes de testar.</span>';
+          return;
+        }
+        resBox.innerHTML = '<span style="color:var(--info);">Testando chave na API Google Gemini...</span>';
+        try {
+          const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${encodeURIComponent(key)}`);
+          if (resp.ok) resBox.innerHTML = '<span style="color:var(--success);">✔ Conexão com Google Gemini API validada com sucesso!</span>';
+          else resBox.innerHTML = `<span style="color:var(--danger);">Falha na validação (HTTP ${resp.status}). Verifique a chave informada.</span>`;
+        } catch (e) {
+          resBox.innerHTML = `<span style="color:var(--danger);">Erro de rede: ${e.message}</span>`;
+        }
+        return;
+      }
+      const url = document.getElementById('cfgEndpointUrl').value.trim();
+      if (!url) {
+        resBox.innerHTML = '<span style="color:var(--danger);">Informe a URL do endpoint.</span>';
+        return;
+      }
+      resBox.innerHTML = '<span style="color:var(--info);">Testando servidor...</span>';
+      try {
+        const resp = await fetch(url, { method: 'OPTIONS' });
+        resBox.innerHTML = `<span style="color:var(--success);">Servidor alcançável (HTTP ${resp.status}).</span>`;
+      } catch (e) {
+        resBox.innerHTML = `<span style="color:var(--warning);">Aviso de rede/CORS: ${e.message}</span>`;
+      }
+    }
+  };
+
+  /* --------------------------------------------------------------------------
+     7. UI, RELATÓRIO E HISTÓRICO
+     -------------------------------------------------------------------------- */
+  const VIEW_META = {
+    dashboard: { title: 'Painel Administrativo', sub: 'Visão geral das avaliações, motores de análise e início rápido' },
+    etapa1: { title: 'Etapa 1 — Imagem e OCR (Português)', sub: 'Envio, tratamento de legibilidade e reconhecimento óptico de caracteres' },
+    etapa2: { title: 'Etapa 2 — Conferência da Transcrição', sub: 'Revisão humana obrigatória antes da correção automática' },
+    etapa3: { title: 'Etapa 3 — Correção Automática e Critérios', sub: 'Análise linguística, pontuação nos 5 critérios e versão corrigida' },
+    relatorio: { title: 'Etapa 4 — Relatório Individual de Avaliação', sub: 'Documento consolidado para impressão ou exportação em PDF' },
+    historico: { title: 'Histórico de Avaliações', sub: 'Consulta, edição, pesquisa e exclusão de registros salvos localmente' },
+    config: { title: 'Configuração de API / IA', sub: 'Escolha entre o Motor Híbrido Integrado ou IA Generativa externa' }
+  };
+
+  const UI = {
+    switchView(viewId) {
+      document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+      const target = document.getElementById('view-' + viewId);
+      if (target) target.classList.add('active');
+
+      document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.view === viewId));
+      document.querySelectorAll('.step-item').forEach(step => step.classList.toggle('active', step.dataset.jump === viewId));
+
+      if (VIEW_META[viewId]) {
+        document.getElementById('pageTitle').textContent = VIEW_META[viewId].title;
+        document.getElementById('pageSubtitle').textContent = VIEW_META[viewId].sub;
+      }
+
+      if (viewId === 'relatorio') this.renderReport();
+      else if (viewId === 'historico') this.renderHistoryTable();
+      else if (viewId === 'dashboard') this.refreshDashboardStats();
+
+      document.getElementById('sidebar').classList.remove('open');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    },
+
+    syncFormToState() {
+      const c = state.current;
+      c.estudante = document.getElementById('inpEstudante').value.trim();
+      c.turma = document.getElementById('inpTurma').value.trim();
+      c.disciplina = document.getElementById('inpDisciplina').value.trim();
+      c.genero = document.getElementById('inpGenero').value;
+      c.nivel = document.getElementById('inpNivel').value;
+      c.data = document.getElementById('inpData').value;
+      c.tema = document.getElementById('inpTema').value.trim();
+      c.transcricaoConfirmada = document.getElementById('txtTranscricaoConfirmada').value;
+
+      c.criterios.c1 = { nota: parseFloat(document.getElementById('scoreC1').value) || 0, justificativa: document.getElementById('justC1').value };
+      c.criterios.c2 = { nota: parseFloat(document.getElementById('scoreC2').value) || 0, justificativa: document.getElementById('justC2').value };
+      c.criterios.c3 = { nota: parseFloat(document.getElementById('scoreC3').value) || 0, justificativa: document.getElementById('justC3').value };
+      c.criterios.c4 = { nota: parseFloat(document.getElementById('scoreC4').value) || 0, justificativa: document.getElementById('justC4').value };
+      c.criterios.c5 = { nota: parseFloat(document.getElementById('scoreC5').value) || 0, justificativa: document.getElementById('justC5').value };
+
+      c.redacaoCorrigida = document.getElementById('txtRedacaoCorrigida').value;
+      c.comentarioGeral = document.getElementById('txtComentarioGeral').value;
+      c.recomendacoes = document.getElementById('txtRecomendacoes').value;
+      c.aprovadaDocente = document.getElementById('chkAprovacaoDocente').checked;
+    },
+
+    syncStateToForm() {
+      const c = state.current;
+      document.getElementById('inpEstudante').value = c.estudante || '';
+      document.getElementById('inpTurma').value = c.turma || '';
+      document.getElementById('inpDisciplina').value = c.disciplina || 'Língua Portuguesa / Redação';
+      document.getElementById('inpGenero').value = c.genero || 'Dissertativo-argumentativo';
+      document.getElementById('inpNivel').value = c.nivel || 'Ensino Médio';
+      document.getElementById('inpData').value = c.data || new Date().toISOString().split('T')[0];
+      document.getElementById('inpTema').value = c.tema || '';
+
+      document.getElementById('ocrPreviewBox').value = c.transcricaoOriginal || '';
+      document.getElementById('boxTranscricaoOriginal').textContent = c.transcricaoOriginal || 'Nenhuma transcrição OCR realizada ainda.';
+      document.getElementById('txtTranscricaoConfirmada').value = c.transcricaoConfirmada || '';
+
+      const badgeConf = document.getElementById('badgeConfirmacao');
+      if (c.transcricaoConfirmadaStatus) {
+        badgeConf.textContent = '✔ Transcrição Confirmada pelo Professor';
+        badgeConf.className = 'badge badge-green';
+      } else {
+        badgeConf.textContent = 'Aguardando Confirmação Docente';
+        badgeConf.className = 'badge badge-amber';
+      }
+
+      document.getElementById('scoreC1').value = c.criterios.c1.nota;
+      document.getElementById('justC1').value = c.criterios.c1.justificativa;
+      document.getElementById('scoreC2').value = c.criterios.c2.nota;
+      document.getElementById('justC2').value = c.criterios.c2.justificativa;
+      document.getElementById('scoreC3').value = c.criterios.c3.nota;
+      document.getElementById('justC3').value = c.criterios.c3.justificativa;
+      document.getElementById('scoreC4').value = c.criterios.c4.nota;
+      document.getElementById('justC4').value = c.criterios.c4.justificativa;
+      document.getElementById('scoreC5').value = c.criterios.c5.nota;
+      document.getElementById('justC5').value = c.criterios.c5.justificativa;
+
+      document.getElementById('txtRedacaoCorrigida').value = c.redacaoCorrigida || '';
+      document.getElementById('txtComentarioGeral').value = c.comentarioGeral || '';
+      document.getElementById('txtRecomendacoes').value = c.recomendacoes || '';
+      document.getElementById('chkAprovacaoDocente').checked = Boolean(c.aprovadaDocente);
+
+      this.updateWordCount();
+      EvaluationModule.recalculateScores();
+      this.renderErrorsList();
+      this.updateDiffPreview();
+    },
+
+    updateWordCount() {
+      const txt = document.getElementById('txtTranscricaoConfirmada').value.trim();
+      const words = txt ? txt.split(/\s+/).length : 0;
+      document.getElementById('wordCountInfo').textContent = `${words} palavras | ${txt.length} caracteres`;
+    },
+
+    updateDiffPreview() {
+      const orig = document.getElementById('txtTranscricaoConfirmada').value;
+      const corr = document.getElementById('txtRedacaoCorrigida').value;
+      document.getElementById('diffComparisonBox').innerHTML = EvaluationModule.computeWordDiff(orig, corr);
+    },
+
+    renderErrorsList() {
+      const container = document.getElementById('errosListContainer');
+      const countBadge = document.getElementById('countErrosBadge');
+      const list = state.current.erros || [];
+      countBadge.textContent = `${list.length} ocorrência(s)`;
+
+      if (list.length === 0) {
+        container.innerHTML = '<p style="font-size:0.85rem; color:var(--text-muted);">Nenhuma ocorrência registrada ainda. Clique em <strong>"Executar Correção Automática Agora"</strong> acima.</p>';
+        return;
+      }
+
+      container.innerHTML = list.map((err, index) => {
+        const isStyle = (err.natureza || '').toLowerCase().includes('estil');
+        return `
+          <div class="error-item ${isStyle ? 'style-suggestion' : ''}">
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:0.5rem; margin-bottom:0.4rem;">
+              <div>
+                <span class="badge ${isStyle ? 'badge-blue' : 'badge-red'}">${EvaluationModule.escapeHtml(err.natureza || 'Erro efetivo')}</span>
+                <strong style="font-size:0.84rem; margin-left:0.35rem;">${EvaluationModule.escapeHtml(err.categoria || '')}</strong>
+              </div>
+              <button class="btn btn-danger btn-sm no-print" onclick="window.__removeError(${index})">Remover</button>
+            </div>
+            <div style="font-size:0.84rem; margin-bottom:0.3rem;">
+              <span class="diff-del">${EvaluationModule.escapeHtml(err.trechoOriginal || '')}</span> →
+              <span class="diff-ins">${EvaluationModule.escapeHtml(err.formaCorreta || '')}</span>
+            </div>
+            <div style="font-size:0.8rem; color:var(--text-main);"><strong>Explicação:</strong> ${EvaluationModule.escapeHtml(err.explicacao || '')}</div>
+            ${err.sugestaoPedagogica ? `<div style="font-size:0.8rem; color:var(--secondary); margin-top:0.2rem;"><strong>Sugestão pedagógica:</strong> ${EvaluationModule.escapeHtml(err.sugestaoPedagogica)}</div>` : ''}
+          </div>
+        `;
+      }).join('');
+    },
+
+    renderReport() {
+      this.syncFormToState();
+      const c = state.current;
+      const { finalTotal, classification } = EvaluationModule.recalculateScores();
+
+      document.getElementById('repEstudante').textContent = c.estudante || 'Não informado';
+      document.getElementById('repTurma').textContent = c.turma || 'Não informada';
+      document.getElementById('repDisciplina').textContent = c.disciplina || 'Língua Portuguesa';
+      document.getElementById('repNivelGenero').textContent = `${c.nivel} — ${c.genero}`;
+      document.getElementById('repTema').textContent = c.tema || 'Não informado';
+      document.getElementById('repDataEmissao').textContent = `Data da Avaliação: ${c.data || '—'}`;
+
+      const statusBadge = document.getElementById('repStatusAprovacao');
+      if (c.aprovadaDocente) {
+        statusBadge.textContent = '✔ Avaliação Revisada e Aprovada pelo Professor';
+        statusBadge.className = 'badge badge-green';
+      } else {
+        statusBadge.textContent = '⚠ Pendente de Aprovação Final do Professor';
+        statusBadge.className = 'badge badge-amber';
+      }
+
+      const fmt = (n) => Number(n || 0).toFixed(1).replace('.', ',');
+      document.getElementById('repC1').textContent = fmt(c.criterios.c1.nota);
+      document.getElementById('repJ1').textContent = c.criterios.c1.justificativa || '—';
+      document.getElementById('repC2').textContent = fmt(c.criterios.c2.nota);
+      document.getElementById('repJ2').textContent = c.criterios.c2.justificativa || '—';
+      document.getElementById('repC3').textContent = fmt(c.criterios.c3.nota);
+      document.getElementById('repJ3').textContent = c.criterios.c3.justificativa || '—';
+      document.getElementById('repC4').textContent = fmt(c.criterios.c4.nota);
+      document.getElementById('repJ4').textContent = c.criterios.c4.justificativa || '—';
+      document.getElementById('repC5').textContent = fmt(c.criterios.c5.nota);
+      document.getElementById('repJ5').textContent = c.criterios.c5.justificativa || '—';
+
+      document.getElementById('repTotal').textContent = fmt(finalTotal);
+      document.getElementById('repClassificacao').textContent = classification.label;
+      document.getElementById('repDescClassificacao').textContent = classification.desc;
+
+      document.getElementById('repTextoConfirmado').textContent = c.transcricaoConfirmada || '—';
+      document.getElementById('repTextoCorrigido').textContent = c.redacaoCorrigida || 'Versão corrigida não preenchida.';
+      document.getElementById('repTextoOcrBruto').textContent = c.transcricaoOriginal || 'Sem transcrição OCR registrada.';
+
+      const repErros = document.getElementById('repErrosContainer');
+      if (!c.erros || c.erros.length === 0) {
+        repErros.innerHTML = '<p style="font-size:0.84rem; color:var(--text-muted);">Nenhuma ocorrência específica registrada.</p>';
+      } else {
+        repErros.innerHTML = `<table class="data-table">
+          <thead>
+            <tr>
+              <th>Categoria / Natureza</th>
+              <th>Trecho Original</th>
+              <th>Forma Correta</th>
+              <th>Explicação e Sugestão Pedagógica</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${c.erros.map(e => `
+              <tr>
+                <td><strong>${EvaluationModule.escapeHtml(e.categoria || '')}</strong><br><small>${EvaluationModule.escapeHtml(e.natureza || '')}</small></td>
+                <td>${EvaluationModule.escapeHtml(e.trechoOriginal || '')}</td>
+                <td><strong>${EvaluationModule.escapeHtml(e.formaCorreta || '')}</strong></td>
+                <td>${EvaluationModule.escapeHtml(e.explicacao || '')}${e.sugestaoPedagogica ? `<br><em>Dica: ${EvaluationModule.escapeHtml(e.sugestaoPedagogica)}</em>` : ''}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>`;
+      }
+
+      document.getElementById('repComentarioGeral').textContent = c.comentarioGeral || 'Nenhum comentário geral registrado.';
+      document.getElementById('repRecomendacoes').textContent = c.recomendacoes || 'Nenhuma recomendação adicional registrada.';
+    },
+
+    refreshDashboardStats() {
+      const total = state.history.length;
+      document.getElementById('statTotal').textContent = total;
+
+      let sum = 0, approved = 0;
+      state.history.forEach(item => {
+        const c = item.criterios || {};
+        const n = (Number(c.c1?.nota) || 0) + (Number(c.c2?.nota) || 0) + (Number(c.c3?.nota) || 0) + (Number(c.c4?.nota) || 0) + (Number(c.c5?.nota) || 0);
+        sum += n;
+        if (item.aprovadaDocente) approved++;
+      });
+
+      document.getElementById('statMedia').textContent = total > 0 ? (sum / total).toFixed(1).replace('.', ',') : '—';
+      document.getElementById('statAprovadas').textContent = approved;
+    },
+
+    renderHistoryTable() {
+      const tbody = document.getElementById('historicoTableBody');
+      const search = document.getElementById('filtroBusca').value.toLowerCase().trim();
+      const turmaFilter = document.getElementById('filtroTurma').value;
+      const statusFilter = document.getElementById('filtroStatus').value;
+
+      const turmaSelect = document.getElementById('filtroTurma');
+      const turmasUnicas = [...new Set(state.history.map(h => h.turma).filter(Boolean))];
+      const currentTurmaVal = turmaSelect.value;
+      turmaSelect.innerHTML = '<option value="">Todas as turmas</option>' +
+        turmasUnicas.map(t => `<option value="${EvaluationModule.escapeHtml(t)}">${EvaluationModule.escapeHtml(t)}</option>`).join('');
+      turmaSelect.value = currentTurmaVal;
+
+      const filtered = state.history.filter(item => {
+        const matchSearch = !search ||
+          (item.estudante || '').toLowerCase().includes(search) ||
+          (item.tema || '').toLowerCase().includes(search) ||
+          (item.transcricaoConfirmada || '').toLowerCase().includes(search);
+        const matchTurma = !turmaFilter || item.turma === turmaFilter;
+        const matchStatus = !statusFilter ||
+          (statusFilter === 'aprovada' && item.aprovadaDocente) ||
+          (statusFilter === 'rascunho' && !item.aprovadaDocente);
+        return matchSearch && matchTurma && matchStatus;
+      });
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; color:var(--text-muted); padding:1.5rem;">Nenhum registro encontrado.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = filtered.map(item => {
+        const c = item.criterios || {};
+        const nota = Math.round(((Number(c.c1?.nota) || 0) + (Number(c.c2?.nota) || 0) + (Number(c.c3?.nota) || 0) + (Number(c.c4?.nota) || 0) + (Number(c.c5?.nota) || 0)) * 10) / 10;
+        const cls = EvaluationModule.getClassification(nota);
+        return `
+          <tr>
+            <td>${EvaluationModule.escapeHtml(item.data || '—')}</td>
+            <td><strong>${EvaluationModule.escapeHtml(item.estudante || 'Sem nome')}</strong></td>
+            <td>${EvaluationModule.escapeHtml(item.turma || '—')}</td>
+            <td>${EvaluationModule.escapeHtml(item.tema || '—')}</td>
+            <td style="text-align:center; font-weight:800;">${nota.toFixed(1).replace('.', ',')}</td>
+            <td><span class="badge ${cls.badgeClass}">${cls.label}</span></td>
+            <td>${item.aprovadaDocente ? '<span class="badge badge-green">Aprovada</span>' : '<span class="badge badge-amber">Rascunho</span>'}</td>
+            <td>
+              <div style="display:flex; gap:0.35rem; flex-wrap:wrap;">
+                <button class="btn btn-outline btn-sm" onclick="window.__loadEval('${item.id}', 'etapa3')">Editar</button>
+                <button class="btn btn-primary btn-sm" onclick="window.__loadEval('${item.id}', 'relatorio')">Relatório</button>
+                <button class="btn btn-danger btn-sm" onclick="window.__askDeleteEval('${item.id}')">Excluir</button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    },
+
+    updateConnectionIndicators() {
+      const online = navigator.onLine;
+      const netEl = document.getElementById('netStatus');
+      netEl.innerHTML = online
+        ? '<span class="dot online"></span> <span>Navegador Online</span>'
+        : '<span class="dot offline"></span> <span>Modo Offline (Motor Local Ativo)</span>';
+
+      const mode = state.aiConfig.mode;
+      const sideAi = document.getElementById('aiStatusSide');
+      const dashBadge = document.getElementById('dashAiBadge');
+      const corrBadge = document.getElementById('aiConnectionBadge');
+
+      if (mode === 'gemini_direct') {
+        sideAi.innerHTML = '<span class="dot online"></span> <span>Motor: Google Gemini API</span>';
+        dashBadge.innerHTML = '<span class="badge badge-green">Gemini API Ativo</span>';
+        corrBadge.textContent = 'Motor: Google Gemini API';
+        corrBadge.className = 'badge badge-green';
+      } else if (mode === 'proxy' || mode === 'openai_compatible') {
+        sideAi.innerHTML = '<span class="dot online"></span> <span>Motor: Endpoint IA Externo</span>';
+        dashBadge.innerHTML = '<span class="badge badge-green">Endpoint IA Ativo</span>';
+        corrBadge.textContent = 'Motor: Endpoint IA Externo';
+        corrBadge.className = 'badge badge-green';
+      } else {
+        sideAi.innerHTML = '<span class="dot online"></span> <span>Motor Automático: Ativo</span>';
+        dashBadge.innerHTML = '<span class="badge badge-green">Automático Híbrido Ativo</span>';
+        corrBadge.textContent = 'Motor Automático Híbrido Ativo';
+        corrBadge.className = 'badge badge-green';
+      }
+    },
+
+    toast(message, type = 'info') {
+      const container = document.getElementById('toastContainer');
+      const el = document.createElement('div');
+      el.className = 'toast';
+      if (type === 'danger') el.style.borderLeftColor = '#ef4444';
+      if (type === 'warn') el.style.borderLeftColor = '#f59e0b';
+      el.textContent = message;
+      container.appendChild(el);
+      setTimeout(() => el.remove(), 4200);
+    },
+
+    confirmDialog(title, message, onConfirm) {
+      const backdrop = document.getElementById('modalConfirm');
+      document.getElementById('confirmTitle').textContent = title;
+      document.getElementById('confirmMessage').textContent = message;
+      backdrop.classList.add('open');
+
+      const cleanup = () => backdrop.classList.remove('open');
+      document.getElementById('btnConfirmCancel').onclick = cleanup;
+      document.getElementById('btnConfirmOk').onclick = () => {
+        cleanup();
+        onConfirm();
+      };
+    }
+  };
+
+  /* --------------------------------------------------------------------------
+     8. EVENTOS E INICIALIZAÇÃO
+     -------------------------------------------------------------------------- */
+  window.__removeError = (idx) => {
+    state.current.erros.splice(idx, 1);
+    UI.renderErrorsList();
+  };
+
+  window.__loadEval = (id, targetView) => {
+    const found = state.history.find(h => h.id === id);
+    if (!found) return;
+    state.current = JSON.parse(JSON.stringify(found));
+    UI.syncStateToForm();
+    UI.switchView(targetView);
+  };
+
+  window.__askDeleteEval = (id) => {
+    const found = state.history.find(h => h.id === id);
+    UI.confirmDialog(
+      'Excluir Avaliação',
+      `Deseja realmente excluir permanentemente a avaliação de "${found?.estudante || 'Estudante'}"?`,
+      () => StorageModule.deleteEvaluation(id)
+    );
+  };
+
+  function updateConfigFormVisibility() {
+    const mode = document.getElementById('cfgAiMode').value;
+    document.getElementById('endpointGroup').style.display = (mode === 'proxy' || mode === 'openai_compatible') ? 'block' : 'none';
+    document.getElementById('modelGroup').style.display = (mode === 'gemini_direct' || mode === 'openai_compatible') ? 'block' : 'none';
+    document.getElementById('sessionKeyGroup').style.display = (mode === 'gemini_direct' || mode === 'openai_compatible') ? 'block' : 'none';
+  }
+
+  function bindEvents() {
+    document.querySelectorAll('.nav-btn').forEach(btn => btn.addEventListener('click', () => UI.switchView(btn.dataset.view)));
+    document.querySelectorAll('[data-jump]').forEach(el => el.addEventListener('click', () => UI.switchView(el.dataset.jump)));
+    document.getElementById('menuToggle').addEventListener('click', () => document.getElementById('sidebar').classList.toggle('open'));
+
+    const startNew = () => {
+      UI.confirmDialog(
+        'Iniciar Nova Avaliação',
+        'Deseja limpar a ficha atual para iniciar uma nova correção?',
+        () => {
+          state.current = createEmptyEvaluation();
+          state.image.loaded = false;
+          document.getElementById('dropzone').style.display = 'block';
+          document.getElementById('imageEditorArea').style.display = 'none';
+          document.getElementById('btnSubstituirImg').style.display = 'none';
+          document.getElementById('btnRunOcr').disabled = true;
+          document.getElementById('ocrConfidenceBox').style.display = 'none';
+          document.getElementById('ocrProgressBox').style.display = 'none';
+          UI.syncStateToForm();
+          UI.switchView('etapa1');
+        }
+      );
+    };
+    document.getElementById('btnNovaAvaliacao').addEventListener('click', startNew);
+    document.getElementById('btnNovoDoHistorico').addEventListener('click', startNew);
+    document.getElementById('btnSalvarRascunho').addEventListener('click', () => StorageModule.upsertCurrentEvaluation());
+    document.getElementById('btnSalvarRelatorio').addEventListener('click', () => StorageModule.upsertCurrentEvaluation());
+
+    // Upload e Drag & Drop
+    const dropzone = document.getElementById('dropzone');
+    const fileInput = document.getElementById('fileInput');
+    dropzone.addEventListener('click', () => fileInput.click());
+    dropzone.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') fileInput.click(); });
+    dropzone.addEventListener('dragover', (e) => { e.preventDefault(); dropzone.classList.add('dragover'); });
+    dropzone.addEventListener('dragleave', () => dropzone.classList.remove('dragover'));
+    dropzone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropzone.classList.remove('dragover');
+      if (e.dataTransfer.files?.[0]) ImageProcessor.handleFile(e.dataTransfer.files[0]);
+    });
+    fileInput.addEventListener('change', (e) => { if (e.target.files?.[0]) ImageProcessor.handleFile(e.target.files[0]); });
+    document.getElementById('btnSubstituirImg').addEventListener('click', () => fileInput.click());
+
+    // Controles de Imagem
+    document.getElementById('btnZoomIn').addEventListener('click', () => { state.image.zoom = Math.min(2.5, state.image.zoom + 0.15); ImageProcessor.renderCanvas(); });
+    document.getElementById('btnZoomOut').addEventListener('click', () => { state.image.zoom = Math.max(0.4, state.image.zoom - 0.15); ImageProcessor.renderCanvas(); });
+    document.getElementById('btnRotateLeft').addEventListener('click', () => { state.image.rotation = (state.image.rotation - 90) % 360; ImageProcessor.renderCanvas(); });
+    document.getElementById('btnRotateRight').addEventListener('click', () => { state.image.rotation = (state.image.rotation + 90) % 360; ImageProcessor.renderCanvas(); });
+    document.getElementById('btnAutoEnhance').addEventListener('click', () => ImageProcessor.autoEnhance());
+    document.getElementById('btnResetImg').addEventListener('click', () => {
+      state.image.rotation = 0; state.image.zoom = 1; state.image.brightness = 100; state.image.contrast = 100; state.image.grayscale = false;
+      document.getElementById('rngBrightness').value = 100; document.getElementById('rngContrast').value = 100;
+      document.getElementById('valBrightness').textContent = '100%'; document.getElementById('valContrast').textContent = '100%';
+      document.getElementById('chkGrayscale').checked = false;
+      ImageProcessor.renderCanvas();
+    });
+    document.getElementById('rngBrightness').addEventListener('input', (e) => { state.image.brightness = Number(e.target.value); document.getElementById('valBrightness').textContent = state.image.brightness + '%'; ImageProcessor.renderCanvas(); });
+    document.getElementById('rngContrast').addEventListener('input', (e) => { state.image.contrast = Number(e.target.value); document.getElementById('valContrast').textContent = state.image.contrast + '%'; ImageProcessor.renderCanvas(); });
+    document.getElementById('chkGrayscale').addEventListener('change', (e) => { state.image.grayscale = e.target.checked; ImageProcessor.renderCanvas(); });
+
+    // OCR e Navegação Etapa 2
+    document.getElementById('btnRunOcr').addEventListener('click', () => OcrModule.run());
+    document.getElementById('btnIrEtapa2').addEventListener('click', () => UI.switchView('etapa2'));
+    document.getElementById('btnPularParaDigitacao').addEventListener('click', () => UI.switchView('etapa2'));
+
+    document.getElementById('txtTranscricaoConfirmada').addEventListener('input', () => {
+      state.current.transcricaoConfirmadaStatus = false;
+      const badgeConf = document.getElementById('badgeConfirmacao');
+      badgeConf.textContent = 'Alterado — Pronto para Confirmar';
+      badgeConf.className = 'badge badge-amber';
+      UI.updateWordCount();
+      UI.updateDiffPreview();
+    });
+
+    document.getElementById('btnRestaurarDoOcr').addEventListener('click', () => {
+      document.getElementById('txtTranscricaoConfirmada').value = state.current.transcricaoOriginal || '';
+      UI.updateWordCount();
+    });
+
+    document.getElementById('btnCopiarOriginal').addEventListener('click', () => { navigator.clipboard?.writeText(state.current.transcricaoOriginal || ''); UI.toast('Original copiado.'); });
+    document.getElementById('btnCopiarConfirmada').addEventListener('click', () => { navigator.clipboard?.writeText(document.getElementById('txtTranscricaoConfirmada').value || ''); UI.toast('Transcrição copiada.'); });
+    document.getElementById('btnCopiarCorrigida').addEventListener('click', () => { navigator.clipboard?.writeText(document.getElementById('txtRedacaoCorrigida').value || ''); UI.toast('Redação corrigida copiada.'); });
+
+    // Confirmar transcrição E disparar correção automática imediatamente!
+    document.getElementById('btnConfirmarTranscricao').addEventListener('click', async () => {
+      const txt = document.getElementById('txtTranscricaoConfirmada').value.trim();
+      if (!txt) {
+        UI.toast('Digite ou cole o texto da redação antes de continuar.', 'warn');
+        return;
+      }
+      state.current.transcricaoConfirmada = txt;
+      state.current.transcricaoConfirmadaStatus = true;
+      const badgeConf = document.getElementById('badgeConfirmacao');
+      badgeConf.textContent = '✔ Transcrição Confirmada';
+      badgeConf.className = 'badge badge-green';
+      UI.switchView('etapa3');
+      await AiService.analyzeEssay();
+    });
+
+    // Etapa 3
+    document.querySelectorAll('.crit-score').forEach(inp => inp.addEventListener('input', () => EvaluationModule.recalculateScores()));
+    document.getElementById('txtRedacaoCorrigida').addEventListener('input', () => UI.updateDiffPreview());
+    document.getElementById('btnAnalisarComIA').addEventListener('click', () => AiService.analyzeEssay());
+    document.getElementById('linkOpenConfig').addEventListener('click', (e) => { e.preventDefault(); UI.switchView('config'); });
+
+    // Modal Erro Manual
+    const modalErro = document.getElementById('modalErro');
+    document.getElementById('btnAddErroManual').addEventListener('click', () => modalErro.classList.add('open'));
+    document.getElementById('btnFecharModalErro').addEventListener('click', () => modalErro.classList.remove('open'));
+    document.getElementById('btnSalvarModalErro').addEventListener('click', () => {
+      const orig = document.getElementById('mErrOriginal').value.trim();
+      const corr = document.getElementById('mErrCorreta').value.trim();
+      const exp = document.getElementById('mErrExplicacao').value.trim();
+      if (!orig || !corr || !exp) {
+        UI.toast('Preencha o trecho original, a forma correta e a explicação.', 'warn');
+        return;
+      }
+      state.current.erros.push({
+        categoria: document.getElementById('mErrCategoria').value,
+        natureza: document.getElementById('mErrNatureza').value,
+        trechoOriginal: orig,
+        formaCorreta: corr,
+        explicacao: exp,
+        sugestaoPedagogica: document.getElementById('mErrSugestao').value.trim()
+      });
+      document.getElementById('mErrOriginal').value = '';
+      document.getElementById('mErrCorreta').value = '';
+      document.getElementById('mErrExplicacao').value = '';
+      document.getElementById('mErrSugestao').value = '';
+      modalErro.classList.remove('open');
+      UI.renderErrorsList();
+      UI.toast('Ocorrência adicionada.');
+    });
+
+    // Gerar Relatório e Imprimir
+    document.getElementById('btnGerarRelatorio').addEventListener('click', () => {
+      UI.syncFormToState();
+      if (!state.current.aprovadaDocente) {
+        UI.confirmDialog(
+          'Aprovação Pendente',
+          'Você ainda não marcou a caixa de aprovação final do professor. Deseja visualizar o relatório mesmo assim?',
+          () => { StorageModule.upsertCurrentEvaluation(); UI.switchView('relatorio'); }
+        );
+      } else {
+        StorageModule.upsertCurrentEvaluation();
+        UI.switchView('relatorio');
+      }
+    });
+    document.getElementById('btnImprimirPdf').addEventListener('click', () => window.print());
+
+    // Histórico
+    document.getElementById('filtroBusca').addEventListener('input', () => UI.renderHistoryTable());
+    document.getElementById('filtroTurma').addEventListener('change', () => UI.renderHistoryTable());
+    document.getElementById('filtroStatus').addEventListener('change', () => UI.renderHistoryTable());
+
+    // Config
+    document.getElementById('cfgAiMode').addEventListener('change', updateConfigFormVisibility);
+    document.getElementById('btnSalvarConfig').addEventListener('click', () => {
+      state.aiConfig.mode = document.getElementById('cfgAiMode').value;
+      state.aiConfig.endpointUrl = document.getElementById('cfgEndpointUrl').value.trim();
+      state.aiConfig.modelName = document.getElementById('cfgModelName').value.trim();
+      StorageModule.saveConfig();
+
+      const tok = document.getElementById('cfgSessionToken').value.trim();
+      if (tok) sessionStorage.setItem('corrige_redacao_session_token', tok);
+      else sessionStorage.removeItem('corrige_redacao_session_token');
+
+      UI.updateConnectionIndicators();
+      UI.toast('Configuração salva com sucesso!');
+    });
+    document.getElementById('btnTestarConexaoIa').addEventListener('click', () => AiService.testEndpoint());
+
+    window.addEventListener('online', () => UI.updateConnectionIndicators());
+    window.addEventListener('offline', () => UI.updateConnectionIndicators());
+  }
+
+  function init() {
+    StorageModule.loadAll();
+    document.getElementById('cfgAiMode').value = state.aiConfig.mode;
+    document.getElementById('cfgEndpointUrl').value = state.aiConfig.endpointUrl;
+    document.getElementById('cfgModelName').value = state.aiConfig.modelName;
+    updateConfigFormVisibility();
+
+    bindEvents();
+    UI.syncStateToForm();
+    UI.refreshDashboardStats();
+    UI.renderHistoryTable();
+    UI.updateConnectionIndicators();
+  }
+
+  document.addEventListener('DOMContentLoaded', init);
+})();
+</script>
+</body>
+</html>
